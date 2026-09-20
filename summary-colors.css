@@ -1,0 +1,61 @@
+/* Scoped to order entry; quoted text and other calculator pages stay unchanged. */
+#summaryContainer :is(.product-cloth, #itemsTable, #addItem) {
+  --product-color: #1d4ed8;
+  --product-tint: #eff6ff;
+}
+#summaryContainer :is(.product-geo, #geoItemsTableSummary, #addGeoItemSummary) {
+  --product-color: #166534;
+  --product-tint: #f0fdf4;
+}
+#summaryContainer :is(.product-hydro, #hydroItemsTableSummary, #addHydroItemSummary) {
+  --product-color: #0e6878;
+  --product-tint: #ecfeff;
+}
+#summaryContainer :is(.product-accessory, #orderAccessories, #addAccessory) {
+  --product-color: #9d174d;
+  --product-tint: #fff1f2;
+}
+#summaryContainer :is(.product-onsite, #onsiteFields) {
+  --product-color: #854d0e;
+  --product-tint: #fefce8;
+}
+#summaryContainer .product-heading {
+  border-left: 5px solid var(--product-color);
+  padding: 10px 12px;
+  color: var(--product-color);
+  background: var(--product-tint);
+  font-size: 18px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+#summaryContainer .items-table th {
+  background: var(--product-tint);
+  color: var(--product-color);
+  border-bottom: 2px solid var(--product-color);
+}
+#summaryContainer .items-table tbody td:first-child {
+  border-left: 4px solid var(--product-color);
+}
+#summaryContainer .items-table tbody tr:hover td {
+  background: var(--product-tint);
+}
+#summaryContainer :is(#addItem, #addGeoItemSummary, #addHydroItemSummary, #addAccessory) {
+  background: var(--product-color);
+  color: #fff;
+}
+#summaryContainer :is(.accessory-row, #onsiteFields) {
+  border-left: 4px solid var(--product-color);
+  padding: 12px;
+  background: var(--product-tint);
+  margin-bottom: 12px;
+}
+#summaryContainer #orderAccessories .accessory-row:has(option[value="clip"]:checked) {
+  --product-color: #475569;
+  --product-tint: #f1f5f9;
+}
+#summaryContainer #orderAccessories .accessory-row:has(option[value="gasket"]:checked) {
+  --product-color: #6b21a8;
+  --product-tint: #faf5ff;
+}
+#summaryContainer .product-heading input { accent-color: var(--product-color); }
