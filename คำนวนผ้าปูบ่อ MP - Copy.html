@@ -1,0 +1,2484 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คำนวณค่า ผ้าปูบ่อ • คลองไส้ไก่ • บ่อกลม • MP Flow • สรุปออเดอร์</title>
+  <style>
+    :root{
+      --mp-black:#0b1220;
+      --mp-dark:#111827;
+      --mp-gray:#6b7280;
+      --mp-light:#f6f7fb;
+      --mp-blue:#2563eb;
+      --mp-blue-2:#60a5fa;
+      --mp-green:#22c55e;
+      --mp-red:#ef4444;
+      --mp-yellow:#facc15;
+      --shadow:0 10px 30px rgba(2,6,23,.10);
+      --radius:16px;
+      --clr-primary: var(--mp-blue);
+      --clr-primary-dark:#1d4ed8;
+      --clr-secondary: var(--mp-blue-2);
+      --clr-danger: var(--mp-red);
+      --clr-warning: var(--mp-yellow);
+      --clr-bg: var(--mp-light);
+      --clr-card: #ffffff;
+      --clr-muted: var(--mp-gray);
+    }
+
+    *{box-sizing:border-box;font-family:'Segoe UI', Tahoma, Arial, sans-serif}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.10), transparent 55%),
+        radial-gradient(900px 500px at 90% 10%, rgba(96,165,250,.12), transparent 55%),
+        var(--clr-bg);
+      color:#0f172a;
+    }
+
+    h1{
+      text-align:center;
+      margin:22px 0 14px;
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:-.2px;
+    }
+    h1:after{
+      content:"";
+      display:block;
+      width:88px;
+      height:4px;
+      margin:10px auto 0;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--mp-blue), var(--mp-blue-2));
+      opacity:.9;
+    }
+
+    .tabs{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:0 0 14px;
+      padding:0 12px;
+    }
+    .tab{
+      padding:10px 14px;
+      cursor:pointer;
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(10px);
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.08);
+      transition:.22s;
+      font-weight:800;
+      color:#0f172a;
+      box-shadow: 0 6px 18px rgba(2,6,23,.06);
+    }
+    .tab:hover{ transform: translateY(-1px); }
+    .tab.active{
+      background: linear-gradient(135deg, var(--mp-blue), var(--mp-blue-2));
+      color:#fff;
+      border-color: transparent;
+    }
+
+    .container{
+      max-width: 1040px;
+      margin: 0 auto 26px;
+      padding: 20px;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    label{ display:block; margin-bottom:8px; font-weight:800; color:#0f172a; }
+    .radio-group{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .radio-group label{ font-weight:700; color:#111827; }
+
+    input[type="number"], input[type="text"], select, textarea{
+      width:100%;
+      padding:14px 16px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      margin-bottom:16px;
+      font-size:16px;
+      line-height:1.4;
+      min-height:46px;
+      background:#fff;
+      transition:border-color .2s ease, box-shadow .2s ease;
+      color:#0f172a;
+    }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus, textarea:focus{
+      outline:none;
+      border-color:#93c5fd;
+      box-shadow:0 0 0 3px rgba(147,197,253,.35);
+    }
+
+    textarea{
+      resize:none;
+      background:#f8fafc;
+      min-height:140px;
+    }
+
+    button{
+      border:none;
+      border-radius:14px;
+      padding:12px 18px;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      transition:.25s;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, var(--mp-blue), var(--mp-blue-2));
+      color:#fff;
+      box-shadow: 0 10px 20px rgba(37,99,235,.18);
+    }
+    .btn-primary:hover{ filter:brightness(.98); transform: translateY(-1px); }
+    .btn-secondary{ background:#0f172a; color:#fff; }
+    .btn-secondary:hover{ filter:brightness(1.05); }
+    .btn-warning{ background:#fde047; color:#111827; }
+    .btn-danger{ background:#ef4444; color:#fff; }
+
+    .copy-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 16px;
+      border-radius:14px;
+      background: #0f172a;
+      color:#fff;
+      font-weight:700;
+      box-shadow: 0 10px 20px rgba(2,6,23,.14);
+    }
+    .copy-btn:hover{ filter:brightness(1.05); }
+
+    .hidden{ display:none !important; }
+
+    .items-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-bottom:14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .items-table thead{
+      background: linear-gradient(135deg, #0f172a, #1f2a44);
+      color:#fff;
+    }
+    .items-table th, .items-table td{
+      padding:10px;
+      text-align:center;
+    }
+    .items-table tbody tr:nth-child(odd){ background:#f8fafc; }
+    .items-table th:first-child, .items-table td:first-child{ min-width: 180px; }
+    .items-table input[type="number"], .items-table select{
+      color:#111827 !important;
+      -webkit-text-fill-color:#111827;
+      background:#fff;
+      width:100%;
+      height:52px;
+      font-size:18px;
+      padding:10px 12px;
+      text-align:center;
+      margin-bottom:0;
+    }
+    .items-table input::placeholder{ color:#9ca3af; }
+
+    .items-table td:nth-child(2),
+    .items-table td:nth-child(3),
+    .items-table td:nth-child(4),
+    .items-table td:nth-child(6){ min-width:120px; }
+
+    .hint{
+      color:#475569;
+      font-size:13px;
+      background: rgba(37,99,235,.06);
+      border:1px dashed rgba(37,99,235,.25);
+      padding:10px 12px;
+      border-radius:14px;
+      margin:8px 0 10px;
+      line-height:1.55;
+      word-break:break-word;
+    }
+
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+
+    .summary-head{
+      background: linear-gradient(135deg, rgba(37,99,235,.08), rgba(96,165,250,.08));
+      border: 1px solid rgba(101,145,238,.18);
+      margin-top: 20px;
+      margin-bottom: 20px;
+      padding: 20px 24px;
+      border-radius:16px;
+    }
+    .summary-head .badge{
+      display:inline-block;
+      font-weight:900;
+      font-size:12px;
+      letter-spacing:.6px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#0f172a;
+      color:#fff;
+    }
+    .summary-head .title{
+      margin-top:8px;
+      font-weight:900;
+      font-size:18px;
+      color:#0f172a;
+    }
+    .summary-head .sub{
+      margin-top:4px;
+      font-size:13px;
+      color:#334155;
+    }
+
+    .table-wrap{
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.10);
+      touch-action: pan-x;
+    }
+    .table-wrap .items-table{
+      border: 0;
+      border-radius: 0;
+      overflow: visible;
+      min-width: 720px;
+      margin-bottom:0;
+    }
+
+    #geoItemsTableSummary thead{
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color:#fff;
+    }
+    #geoItemsTableSummary thead th{ color:#fff; }
+    #geoItemsTableSummary{
+      border: 1px solid rgba(34,197,94,.25);
+    }
+    #geoItemsTableSummary tbody tr:nth-child(odd){
+      background: rgba(34,197,94,.06);
+    }
+
+    .result-card-wrap{
+      margin-top:18px;
+    }
+    .result-card{
+      background:#fff;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:0 20px 50px rgba(2,6,23,.08);
+    }
+    .result-card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .result-badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#0f172a;
+      color:#fff;
+      font-size:12px;
+      font-weight:900;
+    }
+    .result-title{
+      font-size:20px;
+      font-weight:900;
+      color:#0f172a;
+      margin-top:8px;
+    }
+    .result-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .result-box{
+      background:#f8fafc;
+      border:1px solid rgba(15,23,42,.06);
+      border-radius:16px;
+      padding:14px;
+    }
+    .result-box.highlight{
+      background:linear-gradient(135deg, rgba(37,99,235,.10), rgba(96,165,250,.15));
+      border-color:rgba(37,99,235,.18);
+    }
+    .result-box-label{
+      font-size:12px;
+      color:#64748b;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .result-box-value{
+      font-size:22px;
+      font-weight:900;
+      color:#0f172a;
+    }
+
+    .admin-alert{
+      display:none;
+      margin-bottom:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      border:1px solid rgba(250,204,21,.45);
+      background: linear-gradient(135deg, rgba(250,204,21,.12), rgba(245,158,11,.08));
+      color:#78350f;
+      font-size:14px;
+      line-height:1.55;
+      font-weight:700;
+    }
+    .admin-alert.show{
+      display:block;
+    }
+
+    .result-section-title{
+      font-size:15px;
+      font-weight:900;
+      margin-bottom:8px;
+      color:#0f172a;
+    }
+    .copy-actions{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+
+    @media (max-width:800px){
+      .result-grid,
+      .copy-actions{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media (max-width:600px){
+      h1{ font-size:18px; }
+      .container{ padding:14px; }
+      .tab{ padding:9px 12px; font-size:13px; }
+      button{ font-size:16px; }
+      .items-table{ display:block; overflow-x:auto; }
+      .row{ grid-template-columns:1fr; }
+      input[type="number"], input[type="text"], select, textarea{ font-size:18px; min-height:52px; }
+      .items-table input[type="number"], .items-table select{ height:56px; font-size:20px; }
+      .items-table th, .items-table td{ padding:12px; }
+      #summaryResult{ min-height: 360px !important; font-size: 16px; }
+    }
+    .field-error{
+  border:2px solid #ef4444 !important;
+  box-shadow:0 0 0 3px rgba(239,68,68,.12) !important;
+  background:#fff7f7 !important;
+}
+
+.field-ok{
+  border:1px solid rgba(15,23,42,.10);
+  box-shadow:none;
+}
+  </style>
+  <link rel="stylesheet" href="summary-colors.css">
+</head>
+<body>
+
+  <h1>คำนวณค่า ผ้าปูบ่อ / คลองไส้ไก่ / บ่อกลม / MP Flow / สรุปออเดอร์</h1>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="pond">บ่อขุด</div>
+    <div class="tab" data-tab="canal">คลองไส้ไก่</div>
+    <div class="tab" data-tab="geo">Geotextile</div>
+    <div class="tab" data-tab="circular">บ่อกลม</div>
+    <div class="tab" data-tab="flatbar">MP Flow</div>
+    <div class="tab" data-tab="summary">สรุปออเดอร์</div>
+  </div>
+
+  <!-- POND -->
+  <div class="container" id="pondContainer">
+    <form id="pondForm">
+      <label>เลือกความหนา (มม.) — เลือกได้หลายตัวเพื่อเปรียบเทียบราคา:</label>
+      <div class="radio-group">
+        <label><input type="checkbox" name="size" value="0.3"> 0.3 มม.</label>
+        <label><input type="checkbox" name="size" value="0.30"> LDPE 0.3 สีขาว</label>
+        <label><input type="checkbox" name="size" value="0.5"> 0.5 มม.</label>
+        <label><input type="checkbox" name="size" value="0.75"> 0.75 มม.</label>
+        <label><input type="checkbox" name="size" value="1.0"> 1.0 มม.</label>
+      </div>
+
+      <label>ความกว้าง (เมตร):</label>
+      <input type="number" id="pondWidth" step="0.01" placeholder="กรอกความกว้าง" required>
+
+      <label>ความยาว (เมตร):</label>
+      <input type="number" id="pondLength" step="0.01" placeholder="กรอกความยาว" required>
+
+      <label>ความลึก (เมตร, ไม่บังคับ):</label>
+      <input type="number" id="pondDepth" step="0.01" placeholder="กรอกความลึก (ถ้ามี)">
+
+      <label><input type="checkbox" id="pondDiscount3" value="yes"> ส่วนลด 3% (เฉพาะค่าสินค้า)</label>
+      <label><input type="checkbox" id="pondRoundCloth" value="yes"> ผ้ากลม (+10 บาท/ตร.ม.)</label>
+
+
+      <button type="submit" class="btn-primary">คำนวณ</button>
+      <button type="button" id="pondReset" class="btn-warning hidden">คำนวณใหม่</button>
+    </form>
+
+    <div class="result-card-wrap" id="pondResultWrap" style="display:none;">
+      <div class="result-card">
+        <div class="result-card-head">
+          <div>
+            <div class="result-badge">บ่อขุด</div>
+            <div class="result-title">ผลการคำนวณ</div>
+          </div>
+        </div>
+
+        <div class="result-grid" id="pondPriceGrid">
+          <div class="result-box">
+            <div class="result-box-label">ราคาผ้า</div>
+            <div class="result-box-value" id="pondCardProduct">–</div>
+          </div>
+          <div class="result-box">
+            <div class="result-box-label">ค่าส่ง</div>
+            <div class="result-box-value" id="pondCardShip">–</div>
+          </div>
+          <div class="result-box">
+            <div class="result-box-label">มัดจำ 10%</div>
+            <div class="result-box-value" id="pondCardDeposit">–</div>
+          </div>
+          <div class="result-box highlight">
+            <div class="result-box-label">ยอดสุทธิ</div>
+            <div class="result-box-value" id="pondCardTotal">–</div>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <div class="result-section-title">ข้อความสรุป</div>
+          <textarea id="pondResult" readonly style="min-height:340px" placeholder="ผลลัพธ์จะแสดงที่นี่"></textarea>
+        </div>
+
+        <div class="copy-actions" style="grid-template-columns:1fr;">
+          <button type="button" class="copy-btn" id="pondCopy">คัดลอกข้อความ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANAL -->
+  <div class="container hidden" id="canalContainer">
+    <form id="canalForm">
+      <label>เลือกความหนา (มม.):</label>
+      <div class="radio-group">
+        <label><input type="radio" name="canalSize" value="0.5" required> 0.5 มม. (LDPE)</label>
+        <label><input type="radio" name="canalSize" value="0.3" required> 0.3 มม. (LDPE) — 45 บาท/ตร.ม.</label>
+      </div>
+
+      <label>ความกว้าง (เมตร):</label>
+      <input type="number" id="canalWidth" step="0.01" placeholder="กรอกความกว้าง" required>
+
+      <label>ความยาว (เมตร):</label>
+      <input type="number" id="canalLength" step="0.01" placeholder="กรอกความยาว" required>
+      <label><input type="checkbox" id="canalFullRoll"> สั่งแบบยกม้วน</label>
+
+      <div id="canalRollWrap" class="hidden">
+        <label>จำนวนม้วน</label>
+        <input type="number" id="canalRollQty" step="1" min="1" value="1" placeholder="เช่น 1">
+        <div class="hint">
+          ยกม้วนราคา 22,000 บาท/ม้วน<br>
+          • LDPE 0.3 = 6 × 100 ม.<br>
+          • LDPE 0.5 = 4 × 100 ม.
+        </div>
+      </div>
+      <label><input type="checkbox" id="canalDiscount3" value="yes"> ส่วนลด 3% (เฉพาะค่าสินค้า)</label>
+
+      <button type="submit" class="btn-primary">คำนวณ</button>
+      <button type="button" id="canalReset" class="btn-warning hidden">คำนวณใหม่</button>
+    </form>
+
+    <textarea id="canalResult" readonly placeholder="ผลลัพธ์จะแสดงที่นี่"></textarea>
+    <button id="canalCopy" class="copy-btn hidden" type="button">คัดลอกข้อความ</button>
+  </div>
+
+  <!-- CIRCULAR -->
+  <div class="container hidden" id="circularContainer">
+    <form id="circularForm">
+      <label>ข้อมูลผู้รับ (ชื่อ-ที่อยู่-เบอร์โทร)</label>
+      <textarea id="circularCustInfo" placeholder="คัดลอกข้อมูลลูกค้ามาวางที่นี่"></textarea>
+
+      <h3 style="margin-top:0">รายการบ่อกลม (เพิ่มได้หลายรายการ)</h3>
+
+      <div class="table-wrap">
+        <table class="items-table" id="circularItemsTable">
+          <thead>
+            <tr>
+          <th>ประเภทบ่อ</th>
+          <th>ความสูง</th>
+          <th>เส้นผ่านศูนย์กลาง</th>
+          <th>จำนวนบ่อ</th>
+          <th>ลบ</th>
+        </tr> 
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button type="button" id="addCircularItem" class="btn-secondary">+ เพิ่มรายการบ่อ</button>
+
+   <label>ระยะทางจากโรงงานถึงจุดจัดส่ง (กม.)</label>
+<input type="number" id="circularDistance" step="1" min="1" placeholder="เช่น 180" required>
+
+<div class="hint">
+  ✅ เลือกได้ 2 แบบ: LDPE 0.5 (จับจีบ) หรือ HDPE 0.75 (จับจีบ)<br>
+  ✅ เงื่อนไขค่าจัดส่งบ่อกลม<br>
+  • <b>ซื้อ 4 บ่อขึ้นไป ฟรีค่าส่งทุกระยะทาง</b><br>
+  • ฟรีจัดส่งไม่เกิน 200 กม. จากโรงงาน<br>
+  • 201–400 กม. = 3,500 บาท<br>
+  • 401–600 กม. = 6,000 บาท<br>
+  • 601–800 กม. = 10,000 บาท<br>
+  • 801–900 กม. = 12,000 บาท<br>
+  • 901 กม.ขึ้นไป = 15,000 บาท<br>
+  ✅ โปรส่วนลด:<br>
+  • ซื้อ 2–3 บ่อ ลด 10%<br>
+  • ซื้อ 4–5 บ่อ ลด 15% + ฟรีค่าส่ง<br>
+  • ซื้อ 6 บ่อขึ้นไป ลด 20% + ฟรีค่าส่ง<br>
+  ⚠️ พื้นที่พิเศษ เกาะ/ดอย/ชายแดน ค่าเดินทาง 15,000 บาท (ซื้อ 4 บ่อขึ้นไป ฟรี)
+</div>
+
+      <label><input type="checkbox" id="circularSpecialArea"> เกาะ / ดอย / ชายแดน ค่าเดินทาง 15,000 บาท (ซื้อ 4 บ่อขึ้นไป ฟรี)</label>
+      <label><input type="checkbox" id="circularDiscount3"> ส่วนลด 3% (เฉพาะค่าสินค้า)</label>
+
+      <button type="submit" class="btn-primary" style="margin-top:12px">สรุปออเดอร์บ่อกลม</button>
+      <button type="button" id="circularReset" class="btn-warning hidden">เริ่มใหม่</button>
+    </form>
+
+    <textarea id="circularResult" readonly placeholder="ผลลัพธ์จะแสดงที่นี่"></textarea>
+    <button id="circularCopy" class="copy-btn hidden" type="button">คัดลอกข้อความ</button>
+  </div>
+
+  <!-- FLATBAR -->
+  <div class="container hidden" id="flatbarContainer">
+    <form id="flatbarForm">
+      <label>ข้อมูลผู้รับ (ชื่อ-ที่อยู่-เบอร์โทร)</label>
+      <textarea id="flatbarCustInfo" placeholder="คัดลอกข้อมูลลูกค้ามาวางที่นี่"></textarea>
+
+      <h3 style="margin-top:0">รายการผ้า (จำเป็นต้องเลือกอย่างน้อย 1)</h3>
+      <div class="table-wrap">
+        <table class="items-table" id="clothTableFlatbar">
+          <thead>
+            <tr>
+              <th>แบบ</th>
+              <th>กว้าง (ม.)</th>
+              <th>ยาว (ม.)</th>
+              <th>จำนวน</th>
+              <th>ลบ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button type="button" id="flatbarAddCloth" class="btn-secondary" style="margin-bottom:8px">+ เพิ่มรายการผ้า</button>
+      <div class="hint">
+  ค่าเริ่มต้นเป็น "ระบุเอง" (คิด 250 บาท/ตร.ม.) • ถ้าเลือกแบบสำเร็จ ระบบจะกรอกกว้าง×ยาวให้อัตโนมัติและคิดราคาตามชุดสำเร็จ<br>
+  ค่าจัดส่งคิดตามด้านที่สั้นที่สุดของผ้า × 150 บาท × จำนวน<br>
+✅ หากสั่งผ้าปูรถรวม 2 ผืนขึ้นไป ส่งฟรี
+</div>
+
+      <label><input type="checkbox" id="flatbarDiscount3"> ส่วนลด 3% (เฉพาะค่าสินค้า)</label>
+      <label><input type="checkbox" id="flatbarDiscount5"> โปรรีวิว 5%</label>
+      <label><input type="checkbox" id="flatbarReview10"> โปรรีวิว 10% (ซื้อผ้า + ชุดติดตั้ง)</label>
+    
+
+      <hr style="opacity:.25; margin:16px 0">
+
+      <label>คำนวณเหล็กแบน (ไม่บังคับ)</label>
+      <div class="hint">
+        เลือกชุดเหล็กแบนตามความยาว / ความกว้างรถ ระบบจะคำนวณจำนวนเหล็กและราคา (บาท/คัน) ให้ให้อัตโนมัติ แล้วคูณตามจำนวนคันที่ระบุ
+      </div>
+
+      <h4 style="margin:8px 0">รายการเหล็กแบน</h4>
+      <div class="table-wrap">
+        <table class="items-table" id="flatbarItemsTable">
+          <thead>
+            <tr>
+              <th>ชุดเหล็กแบน (ตามความยาวรถ)</th>
+              <th>จำนวนคัน</th>
+              <th>ลบ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button type="button" id="addFlatbarRow" class="btn-secondary" style="margin-bottom:8px">+ เพิ่มรายการเหล็กแบน</button>
+
+      <div class="row">
+        <div>
+          <label>Facebook (ชื่อโปรไฟล์ลูกค้า)</label>
+          <input type="text" id="flatbarFacebook" placeholder="เช่น ยอดชาย เฝดสูงเนิน">
+        </div>
+        <div>
+          <label>วันที่ (ระบุเอง)</label>
+          <input type="text" id="flatbarDate" placeholder="เช่น 20/8/68">
+        </div>
+      </div>
+
+      <label>เลือกเพจ</label>
+      <select id="flatbarPageSelect">
+        <option value="">เลือกเพจ...</option>
+        <option value="ส้ม">ส้ม</option>
+        <option value="ม่วง">ม่วง</option>
+        <option value="น้ำเงิน">น้ำเงิน</option>
+        <option value="บ่อใหญ่">บ่อใหญ่</option>
+        <option value="รถบรรทุก">รถบรรทุก</option>
+        <option value="MP">MP</option>
+        <option value="โทร">โทร</option>
+        <option value="กลุ่มเฟส (เตย)">กลุ่มเฟส (เตย)</option>
+        <option value="PP Dump">PP Dump</option>
+        <option value="เซฟทรัก">เซฟทรัก</option>
+        <option value="Line">Line</option>
+      </select>
+
+      <label>ชื่อแอดมิน</label>
+      <select id="flatbarAdminSelect">
+        <option value="">เลือกชื่อแอดมิน...</option>
+        <option value="เตย">เตย</option>
+        <option value="เบล">เบล</option>
+        <option value="ภีร์">ภีร์</option>
+        <option value="กมล">กมล</option>
+        <option value="pekky">pekky</option>
+        <option value="พลอย">พลอย</option>
+        <option value="แจม">แจม</option>
+        <option value="ใยฝ้าย">ใยฝ้าย</option>
+        <option value="ต๊ะ">ต๊ะ</option>
+        <option value="พงศ์">พงศ์</option>
+        <option value="ปูเป้">ปูเป้</option>
+      </select>
+
+      <button type="submit" class="btn-primary" style="margin-top:12px">คำนวณและสร้างสรุป</button>
+      <button type="button" id="flatbarReset" class="btn-warning hidden">คำนวณใหม่</button>
+    </form>
+
+    <textarea id="flatbarResult" readonly placeholder="ผลลัพธ์จะแสดงที่นี่"></textarea>
+    <button id="flatbarCopy" class="copy-btn hidden" type="button">คัดลอกข้อความ</button>
+  </div>
+
+  <!-- GEOTEXTILE -->
+  <div class="container hidden" id="geoContainer">
+    <form id="geoForm">
+      <label>เลือกเกรด Geotextile:</label>
+      <div class="radio-group">
+        <label><input type="radio" name="geoGrade" value="150" required> 150 กรัม (25 บาท/ตร.ม.)</label>
+        <label><input type="radio" name="geoGrade" value="200" required> 200 กรัม (30 บาท/ตร.ม.)</label>
+      </div>
+
+      <label>ขนาดที่ต้องการ (เมตร):</label>
+      <div class="row">
+        <div>
+          <label>กว้าง</label>
+          <input type="number" id="geoWidth" step="0.01" placeholder="เช่น 5" required>
+        </div>
+        <div>
+          <label>ยาว</label>
+          <input type="number" id="geoLength" step="0.01" placeholder="เช่น 50" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary">คำนวณ</button>
+      <button type="button" id="geoReset" class="btn-warning hidden">คำนวณใหม่</button>
+    </form>
+
+    <textarea id="geoResult" readonly></textarea>
+    <button id="geoCopy" class="copy-btn hidden" type="button">คัดลอกข้อความ</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="container hidden" id="summaryContainer">
+    <div class="summary-head">
+      <div class="summary-title">
+        <div class="badge">MP • ORDER SUMMARY</div>
+        <div class="title">สรุปออเดอร์ (สำคัญ)</div>
+        <div class="sub">กรอกข้อมูลให้ครบ → กด “ยืนยันสรุปออเดอร์” → กดคัดลอกส่งลูกค้า</div>
+      </div>
+    </div>
+
+    <form id="summaryForm">
+      <label>ข้อมูลผู้รับ (ชื่อ-ที่อยู่-เบอร์โทร)</label>
+      <textarea id="custInfo" placeholder="คัดลอกข้อมูลลูกค้ามาวางที่นี่"></textarea>
+
+      <h3 class="product-heading product-cloth" style="margin-top:0">รายการผ้า</h3>
+      <div class="table-wrap">
+        <table class="items-table" id="itemsTable">
+          <thead>
+            <tr>
+              <th>ความหนา</th>
+              <th>กว้าง (ม.)</th>
+              <th>ยาว (ม.)</th>
+              <th>ลึก (ม.)</th>
+              <th>จำนวน</th>
+              <th>ลบ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button type="button" id="addItem" class="btn-secondary">+ เพิ่มรายการ</button>
+
+      <label><input type="checkbox" id="summaryDiscount3"> ส่วนลด 3% (เฉพาะค่าสินค้า)</label>
+      <label><input type="checkbox" id="summaryRoundCloth"> ผ้ากลม (+10 บาท/ตร.ม.)</label>
+
+      <hr style="opacity:.25; margin:16px 0">
+
+      <h3 class="product-heading product-geo" style="margin-top:0">รายการ Geotextile</h3>
+
+      <div class="table-wrap">
+        <table class="items-table" id="geoItemsTableSummary">
+          <thead>
+            <tr>
+              <th>Geo เกรด</th>
+              <th>กว้าง (ม.)</th>
+              <th>ยาว (ม.)</th>
+              <th>จำนวน</th>
+              <th>ลบ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button type="button" id="addGeoItemSummary" class="btn-secondary">+ เพิ่มรายการ Geotextile</button>
+
+      <div class="hint">
+        ระบบจะสรุปเป็น “ม้วนหน้ากว้าง 2 เมตร” ให้อัตโนมัติ (2xความยาว) • เพิ่มได้หลายรายการ
+      </div>
+
+      <hr style="opacity:.25; margin:16px 0">
+
+      <h3 class="product-heading product-hydro" style="margin-top:0">รายการ HydroPod (บ่อกลม)</h3>
+      <div class="table-wrap">
+        <table class="items-table" id="hydroItemsTableSummary">
+          <thead>
+            <tr>
+              <th>ประเภท</th>
+              <th>สูง</th>
+              <th>เส้นผ่านศูนย์กลาง</th>
+              <th>จำนวน</th>
+              <th>ลบ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button type="button" id="addHydroItemSummary" class="btn-secondary">+ เพิ่มรายการ HydroPod</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap;">
+        <label style="margin:0; white-space:nowrap">ระยะทางจัดส่ง HydroPod (กม.):</label>
+        <input type="number" id="hydroDistanceSummary" min="0" step="1" placeholder="เช่น 150" style="width:130px">
+      </div>
+      <label><input type="checkbox" id="hydroSpecialAreaSummary"> เกาะ / ดอย / ชายแดน ค่าเดินทาง 15,000 บาท (ซื้อ 4 บ่อขึ้นไป ฟรี)</label>
+      <div class="hint">ส่วนลดตามจำนวน HydroPod: 2–3 บ่อ ลด 10% / 4–5 บ่อ ลด 15% / 6+ บ่อ ลด 20% • ซื้อ 4 บ่อขึ้นไป ฟรีค่าส่งและค่าเดินทางพื้นที่พิเศษ • ฟรีค่าส่ง ≤200 กม. • 801–900 กม. = 12,000 บาท • 901 กม.ขึ้นไป = 15,000 บาท</div>
+
+      <label>เลือกเพจ</label>
+      <select id="pageSelect">
+        <option value="">เลือกเพจ...</option>
+        <option value="ส้ม">ส้ม</option>
+        <option value="ม่วง">ม่วง</option>
+        <option value="น้ำเงิน">น้ำเงิน</option>
+        <option value="บ่อใหญ่">บ่อใหญ่</option>
+        <option value="รถบรรทุก">รถบรรทุก</option>
+        <option value="MP">MP</option>
+        <option value="โทร">โทร</option>
+        <option value="กลุ่มเฟส (เตย)">กลุ่มเฟส (เตย)</option>
+        <option value="PP Dump">PP Dump</option>
+        <option value="เซฟทรัก">เซฟทรัก</option>
+        <option value="Line">Line</option>
+      </select>
+
+      <label>ชื่อแอดมิน</label>
+      <select id="adminSelect">
+        <option value="">เลือกชื่อแอดมิน...</option>
+        <option value="หมิว">หมิว</option>
+        <option value="เตย">เตย</option>
+        <option value="จ๋า">จ๋า</option>
+        <option value="เบล">เบล</option>
+        <option value="หงส์">หงส์</option>
+        <option value="ภีร์">ภีร์</option>
+        <option value="กมล">กมล</option>
+        <option value="pekky">pekky</option>
+        <option value="พลอย">พลอย</option>
+        <option value="แจม">แจม</option>
+        <option value="ใยฝ้าย">ใยฝ้าย</option>
+      </select>
+
+      <button type="submit" class="btn-primary" style="margin-top:20px">ยืนยันสรุปออเดอร์</button>
+    </form>
+
+    <div class="result-card-wrap" id="summaryResultWrap" style="display:none;">
+      <div class="result-card" id="summaryCard">
+        <div class="result-card-head">
+          <div>
+            <div class="result-badge">MP SUMMARY</div>
+            <div class="result-title">สรุปออเดอร์พร้อมส่ง</div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-box">
+            <div class="result-box-label">ยอดสินค้า</div>
+            <div class="result-box-value" id="cardSubtotal">0 บาท</div>
+          </div>
+          <div class="result-box">
+            <div class="result-box-label">ค่าส่ง</div>
+            <div class="result-box-value" id="cardShip">0 บาท</div>
+          </div>
+          <div class="result-box">
+            <div class="result-box-label">มัดจำ</div>
+            <div class="result-box-value" id="cardDeposit">0 บาท</div>
+          </div>
+          <div class="result-box highlight">
+            <div class="result-box-label">ยอดสุทธิ</div>
+            <div class="result-box-value" id="cardGrand">0 บาท</div>
+          </div>
+        </div>
+
+        <div class="admin-alert" id="summaryAdminAlert"></div>
+
+        <div class="result-section">
+          <div class="result-section-title">ข้อความสรุป</div>
+          <textarea id="summaryResult" readonly style="min-height:420px"></textarea>
+        </div>
+
+        <div class="copy-actions">
+          <button type="button" class="copy-btn" id="summaryCopyFull">คัดลอกทั้งหมด</button>
+          <button type="button" class="copy-btn" id="summaryCopyPrice">คัดลอกเฉพาะราคา</button>
+          <button type="button" class="copy-btn" id="summaryCopyCustomer">คัดลอกแบบลูกค้า</button>
+          <button type="button" class="copy-btn" id="summaryCopyAdmin">คัดลอกแบบแอดมิน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const PRICE_MASTER = {
+   pond: {
+  '0.3': { price: 50, material: 'LDPE' },
+  '0.30': { price: 120, material: 'LDPE สีขาว' },
+  '0.5': { price: 70, material: 'HDPE' },
+  '0.75': { price: 95, material: 'HDPE' },
+  '1.0': { price: 125, material: 'HDPE' }
+},
+summary: {
+  '0.3L': 50,
+  '0.30L': 120,
+  '0.5L': 70,
+  '0.5H': 70,
+  '0.75H': 95,
+  '1.0H': 125
+},
+canal: {
+  '0.3': 45,
+  '0.5': 70
+},
+    geo: {
+      '150': { price: 25, kgPerSqm: 0.15 },
+      '200': { price: 30, kgPerSqm: 0.20 }
+    },
+    mpflow: {
+      customPerSqm: 250,
+      presets: {
+        '4x3': 2600,
+        '4x3.5': 3000,
+        '6x3': 3960,
+        '6x3.5': 4600,
+        '6x4': 5300,
+        '7x3.5': 5400,
+        '7x4': 6150,
+        '8x4': 7000,
+        '8x5': 8800
+      }
+    },
+    shipping: {
+      min: 300,
+      max: 4000,
+      plasticPerKg: 7,
+      geoPerSqm: 5,
+    }
+  };
+
+  function getPondPriceList(){
+  return JSON.parse(JSON.stringify(PRICE_MASTER.pond));
+}
+
+function getSummaryPriceMap(){
+  return PRICE_MASTER.summary;
+}
+
+  const SHIP_MIN = PRICE_MASTER.shipping.min;
+  const SHIP_MAX = PRICE_MASTER.shipping.max;
+  const SHIP_RATE_PER_KG = PRICE_MASTER.shipping.plasticPerKg;
+  const GEO_SHIP_RATE_PER_SQM = PRICE_MASTER.shipping.geoPerSqm;
+
+
+  function clampShipping(x){
+    if (x <= 0) return 0;
+    return Math.min(SHIP_MAX, Math.max(SHIP_MIN, Math.ceil(x)));
+  }
+
+  function calcShipPlasticByWeightKg(weightKg){
+    return clampShipping(weightKg * SHIP_RATE_PER_KG);
+  }
+
+  function calcShipGeoByAreaSqm(areaSqm){
+    return clampShipping(areaSqm * GEO_SHIP_RATE_PER_SQM);
+  }
+
+  function calcShipCombined(plasticKg, geoAreaSqm){
+    const x = (plasticKg * SHIP_RATE_PER_KG) + (geoAreaSqm * GEO_SHIP_RATE_PER_SQM);
+    return clampShipping(x);
+  }
+
+  function calcShipMPFlowByShortestSide(clothRows){
+  let totalShipping = 0;
+  let totalQty = 0;
+
+  for (const tr of clothRows) {
+    const qty = Math.max(1, parseInt(tr.querySelector('.cq')?.value || 1, 10));
+    totalQty += qty;
+  }
+
+  // ส่งฟรีเมื่อสั่งผ้าปูรถรวม 2 ผืนขึ้นไป
+  if (totalQty >= 2) return 0;
+
+  for (const tr of clothRows) {
+    const type = tr.querySelector('.ptype')?.value;
+    const qty = Math.max(1, parseInt(tr.querySelector('.cq')?.value || 1, 10));
+
+    let w = 0;
+    let l = 0;
+
+    if (type !== 'custom') {
+      const s = PRESET_SIZES[type];
+      if (!s) continue;
+      w = Number(s.w);
+      l = Number(s.l);
+    } else {
+      w = parseFloat(tr.querySelector('.cw')?.value || 0);
+      l = parseFloat(tr.querySelector('.cl')?.value || 0);
+    }
+
+    if (!(w > 0 && l > 0) || !(qty > 0)) continue;
+
+    const shortestSide = Math.min(w, l);
+    totalShipping += shortestSide * 150 * qty;
+  }
+
+  return totalShipping;
+}
+
+  function thkToKgPerSqm(thk){
+    const t = Number(thk);
+    return (t === 0.3) ? 0.3 :
+           (t === 0.5) ? 0.5 :
+           (t === 0.75) ? 0.75 :
+           (t === 1.0) ? 1.0 : 0;
+  }
+
+  function fmt(n){ return Math.floor(n).toLocaleString(); }
+  function formatBaht(n){ return `${Math.floor(n).toLocaleString()} บาท`; }
+
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      alert('คัดลอกข้อความแล้ว');
+    }catch(err){
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      alert('คัดลอกข้อความแล้ว');
+    }
+  }
+
+  function getRecommendedThicknessByClothWidth(clothWidth){
+    const w = Number(clothWidth);
+    if (w <= 10) {
+      return { code: '0.3', material: 'LDPE', label: 'LDPE หนา 0.3 มม.' };
+    } else if (w <= 20) {
+      return { code: '0.5', material: 'HDPE', label: 'HDPE หนา 0.5 มม.' };
+    } else if (w <= 35) {
+      return { code: '0.75', material: 'HDPE', label: 'HDPE หนา 0.75 มม.' };
+    }
+    return { code: '1.0', material: 'HDPE', label: 'HDPE หนา 1.0 มม.' };
+  }
+
+  const tabs = document.querySelectorAll('.tab');
+  ['pondDiscount3','canalDiscount3','circularDiscount3','flatbarDiscount3','summaryDiscount3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.defaultChecked = false;
+      el.checked = false;
+    }
+  });
+  const sections = {
+    pond:'pondContainer',
+    canal:'canalContainer',
+    circular:'circularContainer',
+    flatbar:'flatbarContainer',
+    geo:'geoContainer',
+    summary:'summaryContainer'
+  };
+
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    tabs.forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    Object.values(sections).forEach(id=>document.getElementById(id).classList.add('hidden'));
+    const target = tab.getAttribute('data-tab');
+    document.getElementById(sections[target]).classList.remove('hidden');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+
+  // POND
+  const pondForm = document.getElementById('pondForm');
+  const pondWidth = document.getElementById('pondWidth');
+  const pondLength = document.getElementById('pondLength');
+  const pondDepth = document.getElementById('pondDepth');
+  const pondResult = document.getElementById('pondResult');
+  const pondResultWrap = document.getElementById('pondResultWrap');
+  const pondCopy = document.getElementById('pondCopy');
+  const pondReset = document.getElementById('pondReset');
+  const pondRoundCloth = document.getElementById('pondRoundCloth');
+  const pondCardProduct = document.getElementById('pondCardProduct');
+  const pondCardShip = document.getElementById('pondCardShip');
+  const pondCardDeposit = document.getElementById('pondCardDeposit');
+  const pondCardTotal = document.getElementById('pondCardTotal');
+  const pondPriceGrid = document.getElementById('pondPriceGrid');
+
+  function setPondCards(product, ship, deposit, total){
+    pondCardProduct.textContent = product;
+    pondCardShip.textContent = ship;
+    pondCardDeposit.textContent = deposit;
+    pondCardTotal.textContent = total;
+  }
+
+  pondForm.onsubmit = function(e){
+    e.preventDefault();
+    const sizes = [...document.querySelectorAll('input[name="size"]:checked')];
+    let w = parseFloat(pondWidth.value), l = parseFloat(pondLength.value), d = parseFloat(pondDepth.value || 0);
+    if(!sizes.length || w<=0 || l<=0){ alert('กรุณาเลือกความหนาอย่างน้อย 1 ค่า และกรอกข้อมูลให้ครบถ้วน'); return; }
+
+    if (d > 4) {
+      alert('ความลึกเกิน 4 เมตร กรุณาให้แอดมินถามย้ำลูกค้าก่อนค่ะ');
+    }
+
+    const ow = w, ol = l;
+    if(d>0){ w = w + d*2 + 2; l = l + d*2 + 2; }
+
+    const priceList = getPondPriceList();
+    if (pondRoundCloth && pondRoundCloth.checked) {
+      Object.keys(priceList).forEach(k => { priceList[k].price += 10; });
+    }
+
+    const area = w*l;
+    let text='';
+
+    if(sizes.length > 1){
+      // เปรียบเทียบหลายความหนา
+      const rec = getRecommendedThicknessByClothWidth(w);
+      text += `จากขนาดที่ลูกค้าแจ้งมา ราคาดังนี้ค่ะ\n`;
+      for(const s of sizes){
+        const sel = priceList[s.value];
+        const p = Math.floor(area * sel.price);
+        const kg = area * thkToKgPerSqm(parseFloat(s.value));
+        const ship = calcShipPlasticByWeightKg(kg);
+        const total = p + ship;
+        text += `✅ ${sel.material} หนา ${s.value} มม. – ราคาผ้า ${p.toLocaleString()} บาท + ค่าส่ง ${ship.toLocaleString()} บาท = รวม ${total.toLocaleString()} บาท\n`;
+      }
+      text += `\nขนาดผ้าที่คำนวณได้ประมาณ ${w} × ${l} ม. = ${area.toLocaleString()} ตร.ม.\n`;
+      text += `(ขนาดผ้านี้ต้องวัดแนบพื้น และเผื่อขอบข้างละ 1 เมตรแล้ว)\n`;
+      text += `📌 จากขนาดที่แจ้งมาจะแนะนำเป็นขนาด ${rec.label} ค่ะ\n`;
+      if (d > 4) text += `\n⚠️ หมายเหตุภายใน: ความลึกเกิน 4 เมตร ควรถามย้ำลูกค้าอีกครั้ง`;
+      if (pondRoundCloth.checked) { text += `\n(ผ้ากลม +10 บาท/ตร.ม.)`; }
+      text += `\n\nสนใจให้ทางเราแนะนำความหนาที่เหมาะกับหน้างานเพิ่มเติม แจ้งลักษณะพื้นที่ได้เลยค่ะ 😊`;
+      pondPriceGrid.style.display = 'none';
+    }else{
+      const size = sizes[0];
+      const sel = priceList[size.value];
+      const fullTotal = Math.floor(area * sel.price);
+
+      let discountAmt = 0;
+      let netTotal = fullTotal;
+      const pondDiscount3 = document.getElementById('pondDiscount3');
+      let pondDiscRate = 0;
+      if (pondDiscount3 && pondDiscount3.checked) {
+        pondDiscRate = 3;
+        discountAmt = Math.floor(fullTotal * 0.03);
+        netTotal = fullTotal - discountAmt;
+      }
+
+      const kg = area * thkToKgPerSqm(parseFloat(size.value));
+      let shipping = calcShipPlasticByWeightKg(kg);
+      const sum = Math.floor(netTotal + shipping);
+      const dep = sum >= 5000 ? Math.floor(sum * 0.1) : 0;
+
+      setPondCards(
+        `${netTotal.toLocaleString()} บาท`,
+        `${shipping.toLocaleString()} บาท`,
+        `${dep.toLocaleString()} บาท`,
+        `${sum.toLocaleString()} บาท`
+      );
+      pondPriceGrid.style.display = '';
+
+      text += `📍 รายการ:\n`;
+      text += `ผ้าพลาสติก ${sel.material} หนา ${size.value} มม. (${sel.price} บาท/ตร.ม.)\n`;
+      text += `ขนาด ${ow} ม. × ${ol} ม.${d>0?` ลึก ${d} ม.`:''}\n`;
+      text += `ผ้าขนาด ${w} ม. × ${l} ม. = ${area.toLocaleString()} ตร.ม.\n(ขนาดผ้านี้ต้องวัดแนบพื้น และเผื่อขอบข้างละ 1 เมตรแล้ว)\n\n`;
+      text += `ราคาผ้า ${fullTotal.toLocaleString()} บาท\n`;
+      if (discountAmt > 0) {
+        text += `ส่วนลด ${pondDiscRate}% = -${discountAmt.toLocaleString()} บาท\n`;
+        text += `ยอดหลังหักส่วนลด เหลือ ${netTotal.toLocaleString()} บาท\n`;
+      }
+      if (shipping > 0) text += `ค่าจัดส่ง ${shipping.toLocaleString()} บาท\n`;
+      text += `📌 สรุปยอดสั่งซื้อทั้งหมด: ${sum.toLocaleString()} บาท\n`;
+      text += `น้ำหนักประมาณ ${kg.toFixed(1)} กก.\n`;
+      if (d > 4) text += `⚠️ หมายเหตุภายใน: ความลึกเกิน 4 เมตร ควรถามย้ำลูกค้าอีกครั้ง\n`;
+      if(pondRoundCloth.checked) text += `(ผ้ากลม +10 บาท/ตร.ม.)\n`;
+
+      text += `รบกวนลูกค้าตรวจสอบรายการให้ครบก่อนยืนยันนะคะ ✨\nหากเริ่มผลิตแล้ว จะไม่สามารถแก้ไขหรือยกเลิกได้ค่ะ\n\n`;
+      if(sum>=5000){
+        const bal=Math.floor(sum-dep);
+        text += `✅ ชำระมัดจำ 10% (${dep.toLocaleString()} บาท) เพื่อยืนยันคำสั่งซื้อ\n\n📦 แจ้งชื่อ-ที่อยู่ & เบอร์โทรศัพท์\n🚚 สินค้าจะจัดส่งถึงลูกค้าภายใน 3-5 วันนะคะ\nCOD ${bal.toLocaleString()} บาท โอนเมื่อได้รับของค่ะ 😉\n`;
+      }else{
+        text += `ยืนยันการสั่งซื้อแล้วแจ้งชื่อ-ที่อยู่ & เบอร์โทรศัพท์ค่ะ\n🚚 สินค้าจะจัดส่งถึงลูกค้าภายใน 3-5 วันนะคะ\nCOD ${sum.toLocaleString()} บาท โอนเมื่อได้รับของค่ะ 😉\n`;
+      }
+    }
+
+    pondResult.value = text.trim();
+    pondResultWrap.style.display = '';
+    pondReset.classList.remove('hidden');
+    pondResultWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  pondCopy.onclick = ()=> copyText(pondResult.value || '');
+  pondReset.onclick = ()=>{
+    pondForm.reset();
+    pondResult.value='';
+    pondResultWrap.style.display = 'none';
+    pondReset.classList.add('hidden');
+  };
+
+  // CANAL
+  const canalForm = document.getElementById('canalForm');
+  const canalWidth = document.getElementById('canalWidth');
+  const canalLength = document.getElementById('canalLength');
+  const canalResult = document.getElementById('canalResult');
+  const canalCopy = document.getElementById('canalCopy');
+  const canalReset = document.getElementById('canalReset');
+  const canalSizeRadios = document.querySelectorAll('input[name="canalSize"]');
+ const canalFullRoll = document.getElementById('canalFullRoll');
+const canalRollWrap = document.getElementById('canalRollWrap');
+const canalRollQty = document.getElementById('canalRollQty');
+const CANAL_ROLL_PRICE = 22000;
+
+  function applyCanalWidthLock(){
+  const picked = document.querySelector('input[name="canalSize"]:checked');
+
+  if(!picked){
+    canalWidth.disabled = false;
+    return;
+  }
+
+  if(picked.value === '0.5'){
+    canalWidth.value = 4;
+    canalWidth.disabled = true;
+  }else if(picked.value === '0.3'){
+    canalWidth.value = 6;
+    canalWidth.disabled = true;
+  }else{
+    canalWidth.disabled = false;
+  }
+}
+function applyCanalRollMode(){
+  const picked = document.querySelector('input[name="canalSize"]:checked');
+  const isFullRoll = canalFullRoll?.checked;
+
+  if (!canalRollWrap) return;
+
+  if (isFullRoll) {
+    canalRollWrap.classList.remove('hidden');
+    canalLength.value = 100;
+    canalLength.disabled = true;
+
+
+    if (picked?.value === '0.3') {
+      canalWidth.value = 6;
+      canalWidth.disabled = true;
+    } else if (picked?.value === '0.5') {
+      canalWidth.value = 4;
+      canalWidth.disabled = true;
+    }
+  } else {
+    canalRollWrap.classList.add('hidden');
+    canalLength.disabled = false;
+    applyCanalWidthLock();
+  }
+}
+
+canalFullRoll.addEventListener('change', applyCanalRollMode);
+
+  canalSizeRadios.forEach(r => r.addEventListener('change', () => {
+  applyCanalWidthLock();
+  applyCanalRollMode();
+}));
+applyCanalWidthLock();
+applyCanalRollMode();
+
+  canalForm.onsubmit = function(e){
+  e.preventDefault();
+
+  const size = document.querySelector('input[name="canalSize"]:checked');
+  let w = parseFloat(canalWidth.value);
+  let l = parseFloat(canalLength.value);
+  const isFullRoll = canalFullRoll?.checked;
+  const rollQty = Math.max(1, parseInt(canalRollQty?.value || 1, 10));
+
+  if(!size || !(w>0) || !(l>0)){
+    alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
+    return;
+  }
+
+  const mat = 'LDPE';
+  let text = '';
+  let fullTotal = 0;
+  let netTotal = 0;
+  let discountAmt = 0;
+  let kg = 0;
+  let shipping = 0;
+  let sum = 0;
+
+  if (isFullRoll) {
+    // ล็อกขนาดตามชนิด
+    if (size.value === '0.3') {
+      w = 6;
+      l = 100;
+    } else {
+      w = 4;
+      l = 100;
+    }
+
+    const areaPerRoll = w * l;
+    const totalArea = areaPerRoll * rollQty;
+
+    fullTotal = CANAL_ROLL_PRICE * rollQty;
+    netTotal = fullTotal;
+
+    const thk = parseFloat(size.value);
+    kg = totalArea * thk;
+    shipping = calcShipPlasticByWeightKg(kg);
+    sum = Math.floor(netTotal + shipping);
+
+    text += `📍 รายการ:\n`;
+    text += `ผ้าพลาสติก ${mat} หนา ${size.value} มม. แบบยกม้วน\n`;
+    text += `ขนาดต่อม้วน ${w} ม. × ${l} ม.\n`;
+    text += `จำนวน ${rollQty} ม้วน\n\n`;
+    text += `น้ำหนักประมาณ ${kg.toFixed(1)} กก.\n`;
+    text += `ราคาม้วนละ ${CANAL_ROLL_PRICE.toLocaleString()} บาท\n`;
+    text += `ราคารวมผ้า ${fullTotal.toLocaleString()} บาท\n`;
+    if(shipping>0) text += `ค่าจัดส่ง ${shipping.toLocaleString()} บาท\n`;
+    text += `📌 สรุปยอดสั่งซื้อทั้งหมด: ${sum.toLocaleString()} บาท\n`;
+  } else {
+    const area = w * l;
+
+    let pricePerSqm = 0;
+    if(size.value === '0.3'){
+      pricePerSqm = PRICE_MASTER.canal['0.3'];
+    }else{
+      pricePerSqm = PRICE_MASTER.canal['0.5'];
+    }
+
+    fullTotal = Math.floor(area * pricePerSqm);
+    netTotal = fullTotal;
+
+    const canalDiscount3 = document.getElementById('canalDiscount3');
+    let canalDiscRate = 0;
+    if (canalDiscount3 && canalDiscount3.checked) {
+      canalDiscRate = 3;
+      discountAmt = Math.floor(fullTotal * 0.03);
+      netTotal = fullTotal - discountAmt;
+    }
+
+    const thk = parseFloat(size.value);
+    kg = area * thk;
+    shipping = calcShipPlasticByWeightKg(kg);
+    sum = Math.floor(netTotal + shipping);
+
+    text += `📍 รายการ:\n`;
+    text += `ผ้าพลาสติก ${mat} หนา ${size.value} มม. (${pricePerSqm} บาท/ตร.ม.)\n`;
+    text += `ขนาด ${w} ม. × ${l} ม. = ${area.toLocaleString()} ตร.ม.\n\n`;
+    text += `น้ำหนักประมาณ ${kg.toFixed(1)} กก.\n`;
+
+    if (discountAmt > 0) {
+      text += `ยอดเต็ม (ก่อนส่วนลด) ${fullTotal.toLocaleString()} บาท\n`;
+      text += `ส่วนลด ${canalDiscRate}% = -${discountAmt.toLocaleString()} บาท\n`;
+      text += `ยอดหลังหักส่วนลด เหลือ ${netTotal.toLocaleString()} บาท\n`;
+    } else {
+      text += `ราคาผ้า ${fullTotal.toLocaleString()} บาท\n`;
+    }
+
+    if(shipping>0) text += `ค่าจัดส่ง ${shipping.toLocaleString()} บาท\n`;
+    text += `📌 สรุปยอดสั่งซื้อทั้งหมด: ${sum.toLocaleString()} บาท\n`;
+  }
+
+  const dep = sum >= 5000 ? Math.floor(sum * 0.1) : 0;
+  const bal = sum - dep;
+
+  text += `\nรบกวนลูกค้าตรวจสอบรายการให้ครบก่อนยืนยันนะคะ ✨\n`;
+  text += `หากเริ่มผลิตแล้ว จะไม่สามารถแก้ไขหรือยกเลิกได้ค่ะ\n\n`;
+
+  if(dep>0){
+    text += `✅ ชำระมัดจำ 10% (${dep.toLocaleString()} บาท) เพื่อยืนยันคำสั่งซื้อ\n\n`;
+  }
+
+  text += `📦 แจ้งชื่อ-ที่อยู่ & เบอร์โทรศัพท์\n`;
+  text += `🚚 สินค้าจะจัดส่งถึงลูกค้าภายใน 3-5 วันนะคะ\n`;
+  text += `COD ${bal.toLocaleString()} บาท โอนเมื่อได้รับของค่ะ 😉\n`;
+
+  canalResult.value = text.trim();
+  canalCopy.classList.remove('hidden');
+  canalReset.classList.remove('hidden');
+};
+  canalCopy.onclick = ()=> copyText(canalResult.value || '');
+  canalReset.onclick = ()=>{
+  canalForm.reset();
+  canalWidth.disabled = false;
+  canalLength.disabled = false;
+  canalResult.value = '';
+  canalCopy.classList.add('hidden');
+  canalReset.classList.add('hidden');
+
+  if (canalRollWrap) canalRollWrap.classList.add('hidden');
+  if (canalRollQty) canalRollQty.value = 1;
+
+  applyCanalWidthLock();
+  applyCanalRollMode();
+};
+  // CIRCULAR
+  const circularForm = document.getElementById('circularForm');
+  const circularResult = document.getElementById('circularResult');
+  const circularCopy = document.getElementById('circularCopy');
+  const circularReset = document.getElementById('circularReset');
+  const circularTbody = document.querySelector('#circularItemsTable tbody');
+  const addCircularItemBtn = document.getElementById('addCircularItem');
+
+  const CIRCULAR = {
+  ldpe05: {
+    label: 'LDPE 0.5 (จับจีบ)',
+    materialText: 'LDPE 0.5 แบบจับจีบ',
+    '0.8': {
+      '4':  { volume: 10000,  price: 12500 },
+      '5':  { volume: 15500,  price: 16500 },
+      '6':  { volume: 22000,  price: 20000 },
+      '8':  { volume: 40000,  price: 29000 },
+      '10': { volume: 62000,  price: 39000 },
+      '12': { volume: 90000,  price: 51000 },
+    },
+    '1.2': {
+      '4':  { volume: 15000,  price: 19000 },
+      '5':  { volume: 23500,  price: 25000 },
+      '6':  { volume: 34000,  price: 31500 },
+      '8':  { volume: 60000,  price: 43500 },
+      '10': { volume: 95000,  price: 57500 },
+      '12': { volume: 135000, price: 72000 },
+    }
+  },
+  hdpe075: {
+    label: 'HDPE 0.75 (จับจีบ)',
+    materialText: 'HDPE 0.75 แบบต้องนำไปจับจีบ',
+    '0.8': {
+      '4':  { volume: 10000,  price: 16000 },
+      '5':  { volume: 15500,  price: 21000 },
+      '6':  { volume: 22000,  price: 26000 },
+      '8':  { volume: 40000,  price: 36000 },
+      '10': { volume: 62000,  price: 48000 },
+      '12': { volume: 90000,  price: 59000 },
+    },
+    '1.2': {
+      '4':  { volume: 15000,  price: 22000 },
+      '5':  { volume: 23500,  price: 30000 },
+      '6':  { volume: 34000,  price: 39000 },
+      '8':  { volume: 60000,  price: 50000 },
+      '10': { volume: 95000,  price: 63000 },
+      '12': { volume: 135000, price: 72000 },
+    }
+  }
+};
+
+  function addCircularRow(defaultMat='ldpe05', defaultH='0.8', defaultD='6', defaultQ=1){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <select class="cm">
+        <option value="ldpe05">LDPE 0.5 (จับจีบ)</option>
+        <option value="hdpe075">HDPE 0.75 (จับจีบ)</option>
+      </select>
+    </td>
+    <td>
+      <select class="ch">
+        <option value="0.8">สูง 0.8 ม.</option>
+        <option value="1.2">สูง 1.2 ม.</option>
+      </select>
+    </td>
+    <td>
+      <select class="cd">
+        <option value="4">4 ม.</option>
+        <option value="5">5 ม.</option>
+        <option value="6">6 ม.</option>
+        <option value="8">8 ม.</option>
+        <option value="10">10 ม.</option>
+        <option value="12">12 ม.</option>
+      </select>
+    </td>
+    <td><input class="cq" type="number" min="1" step="1" value="${defaultQ}"></td>
+    <td><button type="button" class="btn-danger cdel">ลบ</button></td>
+  `;
+  tr.querySelector('.cm').value = defaultMat;
+  tr.querySelector('.ch').value = defaultH;
+  tr.querySelector('.cd').value = defaultD;
+  tr.querySelector('.cdel').onclick = ()=> tr.remove();
+  circularTbody.appendChild(tr);
+}
+
+  addCircularRow('ldpe05','0.8','6',1);
+addCircularItemBtn.onclick = ()=> addCircularRow('ldpe05','0.8','6',1);
+
+  function collectCircularItems(){
+  const rows = [...circularTbody.querySelectorAll('tr')];
+  const items = [];
+
+  for(const tr of rows){
+    const mat = tr.querySelector('.cm')?.value;
+    const h = tr.querySelector('.ch')?.value;
+    const d = tr.querySelector('.cd')?.value;
+    const q = Math.max(1, parseInt(tr.querySelector('.cq')?.value || 1, 10));
+
+    const group = CIRCULAR[mat];
+    const data = group?.[h]?.[d];
+    if(!group || !data) continue;
+
+    items.push({
+      mat,
+      matLabel: group.label,
+      materialText: group.materialText,
+      h,
+      d,
+      q,
+      volume: data.volume,
+      unitPrice: data.price
+    });
+  }
+
+  return items;
+}
+function calcCircularShipping(distanceKm){
+  const d = Number(distanceKm || 0);
+
+  if (d <= 200) return { shipping: 0, note: 'ฟรีจัดส่งไม่เกิน 200 กม.' };
+  if (d <= 400) return { shipping: 3500, note: 'ค่าจัดส่ง 3,500 บาท' };
+  if (d <= 600) return { shipping: 6000, note: 'ค่าจัดส่ง 6,000 บาท' };
+  if (d <= 800) return { shipping: 10000, note: 'ค่าจัดส่ง 10,000 บาท' };
+  if (d <= 900) return { shipping: 12000, note: 'ค่าจัดส่ง 12,000 บาท' };
+
+  return { shipping: 15000, note: 'ค่าจัดส่ง 15,000 บาท' };
+}
+
+function calcCircularDiscount(totalQty){
+  if (totalQty >= 6) return 20;
+  if (totalQty >= 4) return 15;
+  if (totalQty >= 2) return 10;
+  return 0;
+}
+ const circularDistance = document.getElementById('circularDistance');
+
+circularForm.onsubmit = function(e){
+  e.preventDefault();
+
+  const cust = (document.getElementById('circularCustInfo').value || '').trim();
+  const items = collectCircularItems();
+  const distanceKm = parseFloat(circularDistance?.value || 0);
+
+  if(!items.length){
+    alert('กรุณาเพิ่มรายการบ่ออย่างน้อย 1 รายการ');
+    return;
+  }
+
+  if(!(distanceKm > 0) && !(document.getElementById('circularQueue').checked && !document.getElementById('circularSpecialArea').checked)){
+    alert('กรุณากรอกระยะทางก่อนสรุปออเดอร์');
+    return;
+  }
+
+  const totalQty = items.reduce((s,it)=> s + it.q, 0);
+  let fullTotal = 0;
+  let listText = '';
+
+  for(const it of items){
+    const lineTotal = it.unitPrice * it.q;
+    fullTotal += lineTotal;
+
+    const mmText = it.mat === 'ldpe05' ? 'LDPE หนา 0.5 มม.' : 'HDPE หนา 0.75 มม.';
+
+    listText +=
+`บ่อกลม HydroPod ผ้า ${mmText}
+สูง ${it.h} ม. เส้นผ่านศูนย์กลาง ${it.d} ม.
+ความจุประมาณ ${fmt(it.volume)} ลิตร
+ราคา ${fmt(it.unitPrice)} บาท จำนวน ${it.q} บ่อ
+`;
+  }
+
+  const covers = collectCircularCovers();
+  const discRate = calcCircularDiscount(totalQty);
+  const discount = discRate > 0 ? Math.floor(fullTotal * discRate / 100) : 0;
+  const afterDiscount = Math.max(0, fullTotal - discount);
+
+  const applyDisc3 = document.getElementById('circularDiscount3')?.checked;
+  const disc3Amt = applyDisc3 ? Math.floor(afterDiscount * 0.03) : 0;
+  const afterDiscount3 = afterDiscount - disc3Amt;
+
+  const freeShipByQty = totalQty >= 4;
+  const isSpecialArea = document.getElementById('circularSpecialArea')?.checked;
+  const shipInfo = calcCircularShipping(distanceKm);
+  const travel = installationTravel(distanceKm, totalQty, isSpecialArea, document.getElementById('circularQueue').checked);
+  const shipping = isSpecialArea ? 0 : travel.total;
+  const specialAreaFee = !freeShipByQty && isSpecialArea ? 15000 : 0;
+
+  let out = `ส่ง\n📍 รายการสั่งซื้อ\n`;
+
+  if(cust){
+    out += `${cust}\n\n`;
+  }
+
+  out += listText;
+  if (covers.text) out += `\n${covers.text}`;
+  out += `\nราคาบ่อรวม ${fmt(fullTotal)} บาท\n`;
+
+  if(discount > 0){
+    out += `ส่วนลด ${discRate}% (${totalQty} บ่อ) = -${fmt(discount)} บาท\n`;
+  }
+
+  if(disc3Amt > 0){
+    out += `ส่วนลด 3% = -${fmt(disc3Amt)} บาท\n`;
+  }
+
+  out += `ราคาหลังหักส่วนลด = ${fmt(afterDiscount3)} บาท\n\n`;
+  if (covers.total) out += `ราคาฝาบ่อรวม ${fmt(covers.total)} บาท\n\n`;
+  out += travel.text;
+
+
+  {
+    const grandTotal = afterDiscount3 + covers.total + shipping + specialAreaFee;
+    const deposit = Math.floor(grandTotal * 0.20);
+    const cod = grandTotal - deposit;
+
+    out += `\n📌ยอดรวมสุทธิ ${fmt(grandTotal)} บาท\n\n`;
+
+    out += `✅ ชำระมัดจำ 20% = ${fmt(deposit)} บาท\n`;
+    out += `✅ ยอดคงเหลือ ${fmt(cod)} บาท ชำระเมื่อติดตั้งเสร็จ\n\n`;
+
+    out += `🚚 ระยะเวลาจัดส่ง / ติดตั้ง\n`;
+    out += `จะมีทีมติดตั้งโทรไปนัดหมายอีกครั้งนะคะ`;
+  }
+
+  circularResult.value = out.trim();
+  circularCopy.classList.remove('hidden');
+  circularReset.classList.remove('hidden');
+};
+  // GEO
+const geoForm = document.getElementById('geoForm');
+const geoResult = document.getElementById('geoResult');
+const geoCopy = document.getElementById('geoCopy');
+const geoReset = document.getElementById('geoReset');
+const geoWidth = document.getElementById('geoWidth');
+const geoLength = document.getElementById('geoLength');
+
+geoForm.onsubmit = function(e){
+  e.preventDefault();
+
+  const grade = document.querySelector('input[name="geoGrade"]:checked');
+  const w = parseFloat(geoWidth.value || 0);
+  const l = parseFloat(geoLength.value || 0);
+
+  if(!grade || w <= 0 || l <= 0){
+    alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
+    return;
+  }
+
+  const area = w * l;
+  const rollW = 2;
+  const rollL = Math.ceil(area / rollW);
+
+  const unit = PRICE_MASTER.geo[grade.value].price;
+  const base = Math.floor(area * unit);
+  const kgPerSqm = PRICE_MASTER.geo[grade.value].kgPerSqm;
+  const kg = area * kgPerSqm;
+  const ship = calcShipGeoByAreaSqm(area);
+  const sum = base + ship;
+
+  let text = `ผ้าใย Geotextile ทางเราจะส่งเป็นม้วนหน้ากว้าง 2 เมตรนะคะ\n`;
+  text += `พื้นที่จะเท่ากันค่ะ สามารถนำไปตัดแต่งใช้งานได้\n\n`;
+  text += `ขนาดที่ต้องการ ${w}x${l} ม. = ${area.toLocaleString()} ตร.ม.\n`;
+  text += `จัดส่งเป็นม้วน 2x${rollL} ม.\n`;
+  text += `น้ำหนักประมาณ ${kg.toFixed(1)} กก.\n\n`;
+  text += `ราคา Geo ${base.toLocaleString()} บาท\n`;
+  text += `ค่าส่ง ${ship.toLocaleString()} บาท\n`;
+  text += `รวม ${sum.toLocaleString()} บาท`;
+
+  geoResult.value = text.trim();
+  geoCopy.classList.remove('hidden');
+  geoReset.classList.remove('hidden');
+};
+
+geoCopy.onclick = ()=> copyText(geoResult.value || '');
+
+geoReset.onclick = ()=>{
+  geoForm.reset();
+  geoResult.value = '';
+  geoCopy.classList.add('hidden');
+  geoReset.classList.add('hidden');
+};
+  circularCopy.onclick = ()=> copyText(circularResult.value || '');
+
+circularReset.onclick = ()=>{
+  circularForm.reset();
+  if (circularDistance) circularDistance.value = '';
+  circularTbody.innerHTML = '';
+  addCircularRow('ldpe05','0.8','6',1);
+  circularResult.value = '';
+  circularCopy.classList.add('hidden');
+  circularReset.classList.add('hidden');
+};
+
+  // MP FLOW
+  const flatbarForm = document.getElementById('flatbarForm');
+  const flatbarResult = document.getElementById('flatbarResult');
+  const flatbarCopy = document.getElementById('flatbarCopy');
+  const flatbarReset = document.getElementById('flatbarReset');
+  const flatbarItemsBody = document.querySelector('#flatbarItemsTable tbody');
+  const addFlatbarRowBtn = document.getElementById('addFlatbarRow');
+  const clothTableBody = document.querySelector('#clothTableFlatbar tbody');
+  const btnAddCloth = document.getElementById('flatbarAddCloth');
+
+  const CLOTH_PRESETS = PRICE_MASTER.mpflow.presets;
+  const PRESET_SIZES = {
+    '4x3':   { w:4, l:3 },
+    '4x3.5': { w:4, l:3.5 },
+    '6x3':   { w:6, l:3 },
+    '6x3.5': { w:6, l:3.5 },
+    '6x4':   { w:6, l:4 },
+    '7x3.5': { w:7, l:3.5 },
+    '7x4':   { w:7, l:4 },
+    '8x4':   { w:8, l:4 },
+    '8x5':   { w:8, l:5 }
+  };
+
+  function makeClothRow(defaultType='custom'){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="ptype">
+          <option value="custom" selected>ระบุเอง</option>
+          <option value="4x3">4 ม. × 3 ม. — 2,600</option>
+          <option value="4x3.5">4 ม. × 3.5 ม. — 3,000</option>
+          <option value="6x3">6 ม. × 3 ม. — 3,960</option>
+          <option value="6x3.5">6 ม. × 3.5 ม. — 4,600</option>
+          <option value="6x4">6 ม. × 4 ม. — 5,300</option>
+          <option value="7x3.5">7 ม. × 3.5 ม. — 5,400</option>
+          <option value="7x4">7 ม. × 4 ม. — 6,150</option>
+          <option value="8x4">8 ม. × 4 ม. — 7,000</option>
+          <option value="8x5">8 ม. × 5 ม. — 8,800</option>
+        </select>
+      </td>
+      <td><input type="number" class="cw" step="0.1" min="0.1" placeholder="กว้าง (ม.)"></td>
+      <td><input type="number" class="cl" step="0.1" min="0.1" placeholder="ยาว (ม.)"></td>
+      <td><input type="number" class="cq" value="1" min="1"></td>
+      <td><button type="button" class="btn-danger del">ลบ</button></td>`;
+
+    const sel = tr.querySelector('.ptype');
+    const cw = tr.querySelector('.cw');
+    const cl = tr.querySelector('.cl');
+    const delBtn = tr.querySelector('.del');
+
+    function applyType(){
+      const val = sel.value;
+      if(val!=='custom'){
+        const s = PRESET_SIZES[val];
+        cw.value=s.w;
+        cl.value=s.l;
+        cw.disabled=true;
+        cl.disabled=true;
+      } else {
+        cw.disabled=false;
+        cl.disabled=false;
+        cw.value = '';
+        cl.value = '';
+      }
+    }
+
+    sel.addEventListener('change', applyType);
+    delBtn.addEventListener('click', ()=> tr.remove());
+    sel.value = defaultType;
+    applyType();
+    clothTableBody.appendChild(tr);
+  }
+
+  btnAddCloth.addEventListener('click', ()=> makeClothRow('custom'));
+  makeClothRow('custom');
+
+  const FLATBAR_PRESETS = {
+    '7-25': {
+      id: '7-25',
+      label: 'รถยาว 7 ม. กว้าง 2.5 ม. — 1,850 บาท/คัน',
+      length: 7,
+      width: 2.5,
+      pricePerCar: 1850,
+      longBars:  [
+        { len: 2.0, qty: 8 },
+        { len: 3.0, qty: 4 }
+      ],
+      crossBars: [{ len: 2.4, qty: 3 }],
+      cornerBars:[{ len: 0.6, qty: 4 }],
+    },
+    '6-25': {
+      id: '6-25',
+      label: 'รถยาว 6 ม. กว้าง 2.5 ม. — 1,650 บาท/คัน',
+      length: 6,
+      width: 2.5,
+      pricePerCar: 1650,
+      longBars:  [{ len: 3.0, qty: 8 }],
+      crossBars: [{ len: 2.4, qty: 3 }],
+      cornerBars:[{ len: 0.6, qty: 4 }],
+    },
+    '5-25': {
+      id: '5-25',
+      label: 'รถยาว 5 ม. กว้าง 2.5 ม. — 1,450 บาท/คัน',
+      length: 5,
+      width: 2.5,
+      pricePerCar: 1450,
+      longBars:  [
+        { len: 3.0, qty: 4 },
+        { len: 2.0, qty: 4 },
+      ],
+      crossBars: [{ len: 2.4, qty: 3 }],
+      cornerBars:[{ len: 0.6, qty: 4 }],
+    },
+    '4-20': {
+      id: '4-20',
+      label: 'รถยาว 4 ม. กว้าง 2 ม. — 1,200 บาท/คัน',
+      length: 4,
+      width: 2.0,
+      pricePerCar: 1200,
+      longBars:  [{ len: 2.0, qty: 8 }],
+      crossBars: [{ len: 2.0, qty: 3 }],
+      cornerBars:[{ len: 0.6, qty: 4 }],
+    },
+  };
+
+  function makeFlatbarRow(defaultId = '7-25', qty = 1){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="fpreset">
+          <option value="7-25">รถยาว 7 ม. กว้าง 2.5 ม. — 1,850 บาท/คัน</option>
+          <option value="6-25">รถยาว 6 ม. กว้าง 2.5 ม. — 1,650 บาท/คัน</option>
+          <option value="5-25">รถยาว 5 ม. กว้าง 2.5 ม. — 1,450 บาท/คัน</option>
+          <option value="4-20">รถยาว 4 ม. กว้าง 2 ม. — 1,200 บาท/คัน</option>
+        </select>
+      </td>
+      <td><input type="number" class="fqty" step="1" min="1" value="${qty}"></td>
+      <td><button type="button" class="btn-danger fdel">ลบ</button></td>`;
+
+    const sel = tr.querySelector('.fpreset');
+    sel.value = defaultId;
+    tr.querySelector('.fdel').onclick = ()=> tr.remove();
+    flatbarItemsBody.appendChild(tr);
+  }
+
+  addFlatbarRowBtn.addEventListener('click', ()=> makeFlatbarRow());
+
+  function collectFlatbarItems(){
+    const rows = [...flatbarItemsBody.querySelectorAll('tr')];
+    const items = [];
+    for(const tr of rows){
+      const id  = tr.querySelector('.fpreset')?.value;
+      const qty = Math.max(1, parseInt(tr.querySelector('.fqty')?.value || 1, 10));
+      const preset = FLATBAR_PRESETS[id];
+      if(preset && qty > 0){
+        items.push({ preset, qty });
+      }
+    }
+    return items;
+  }
+
+  function collectCloth(){
+    const rows = [...clothTableBody.querySelectorAll('tr')];
+    let has=false, price=0;
+    let lines=[];
+    let areaTotal = 0;
+
+    for(const tr of rows){
+      const type = tr.querySelector('.ptype').value;
+      const cw = parseFloat(tr.querySelector('.cw').value||0);
+      const cl = parseFloat(tr.querySelector('.cl').value||0);
+      const qty = Math.max(1, parseInt(tr.querySelector('.cq').value||1,10));
+
+      if(type!=='custom'){
+        const u = CLOTH_PRESETS[type]||0;
+        const s = PRESET_SIZES[type];
+        const area = s.w * s.l;
+        areaTotal += area * qty;
+
+        const sum = u*qty;
+        price += sum;
+        has = has || sum>0;
+        lines.push(`ขนาด ${s.w}x${s.l}${qty>1?` จำนวน ${qty} ผืน`:''} ราคา ${sum.toLocaleString()} บาท`);
+      }else{
+        if(!(cw>0 && cl>0)) continue;
+        const area = cw*cl;
+        areaTotal += area * qty;
+
+        const unit=Math.floor(area*PRICE_MASTER.mpflow.customPerSqm);
+        const sum=unit*qty;
+        price+=sum;
+        has = has || sum>0;
+        lines.push(`ขนาด ${cw}x${cl}${qty>1?` จำนวน ${qty} ผืน`:''} ราคา ${sum.toLocaleString()} บาท`);
+      }
+    }
+
+    return {has, text: lines.join('\n'), price, areaTotal};
+  }
+
+  function calcFlatbarAggregate(items){
+    if(!items.length){
+      return { text:'', totalPrice:0 };
+    }
+
+    let blocks = [];
+    let totalPrice = 0;
+
+    for(const {preset, qty} of items){
+      const p = preset;
+      const perCarPrice = p.pricePerCar;
+      const totalThis   = perCarPrice * qty;
+      totalPrice       += totalThis;
+
+      const carsText = qty > 1 ? ` × ${qty} คัน` : '';
+
+      const longLines = (p.longBars || []).map(b =>
+        `เหล็กแบน ${b.len} ม. × ${b.qty * qty} เส้น`
+      ).join('\n');
+
+      const crossLines = (p.crossBars || []).map(b =>
+        `เหล็กสำหรับติดตั้งแนวขวาง  ${b.len} ม. × ${b.qty * qty} เส้น`
+      ).join('\n');
+
+      const cornerLines = (p.cornerBars || []).map(b =>
+        `เหล็กสำหรับติดตั้งแนวตั้งมุม ${b.len} ม. x ${b.qty * qty} เส้น`
+      ).join('\n');
+
+      const unitText = qty > 1
+        ? `รวมยอดชุดติดตั้ง ${perCarPrice.toLocaleString()} บาท/คัน จำนวน ${qty} คัน = ${totalThis.toLocaleString()} บาท`
+        : `รวมยอดชุดติดตั้ง ${perCarPrice.toLocaleString()} บาท/คัน`;
+
+      const block = `📦 ชุดเหล็กแบนสำหรับติดตั้ง MP Flow 2.0 
+ความยาวรถ ${p.length} เมตร ความกว้าง ${p.width} เมตร${carsText}
+
+สิ่งที่จะได้รับ : 
+${longLines}
+${crossLines}
+${cornerLines}
+และสกรูสำหรับติดตั้ง
+${unitText}`;
+
+      blocks.push(block);
+    }
+
+    return {
+      text: blocks.join('\n\n'),
+      totalPrice
+    };
+  }
+
+  flatbarForm.onsubmit = function(e){
+    e.preventDefault();
+    const cloth = collectCloth();
+    if(!cloth.has){
+      alert('กรุณาเพิ่มรายการผ้าอย่างน้อย 1 รายการ และกรอกให้ครบถ้วน');
+      return;
+    }
+
+    const cust = (document.getElementById('flatbarCustInfo').value||'').trim();
+    const items = collectFlatbarItems();
+    const kit = items.length ? calcFlatbarAggregate(items) : null;
+
+    let out = 'ส่ง';
+    if(cust) out += `\n${cust}`;
+    out += `\n\nMP Flow 2.0 HDPE หนา 2 มิล`;
+    out += `\n${cloth.text}`;
+
+    if(kit && kit.text){ out += `\n\n${kit.text}`; }
+
+    const applyDisc = document.getElementById('flatbarDiscount5').checked;
+    const applyDisc3 = document.getElementById('flatbarDiscount3').checked;
+    const applyReview = document.getElementById('flatbarReview10').checked;
+    const clothBase = cloth.price;
+    const steelSum = kit ? kit.totalPrice : 0;
+    const hasKit = steelSum > 0;
+
+    let discAmt = 0;
+    let flatDiscRate = 0;
+    let clothSum = clothBase;
+    let steelAfterDisc = steelSum;
+
+    if (applyReview && hasKit) {
+      discAmt = Math.floor((clothBase + steelSum) * 0.10);
+      clothSum = Math.floor(clothBase * 0.90);
+      steelAfterDisc = Math.floor(steelSum * 0.90);
+      flatDiscRate = 10;
+    } else if (applyDisc) {
+      discAmt = Math.floor(clothBase * 0.05);
+      clothSum = clothBase - discAmt;
+      flatDiscRate = 5;
+    } else if (applyDisc3) {
+      discAmt = Math.floor((clothBase + steelSum) * 0.03);
+      clothSum = Math.floor(clothBase * 0.97);
+      steelAfterDisc = Math.floor(steelSum * 0.97);
+      flatDiscRate = 3;
+    }
+
+    let subtotal = clothSum + steelAfterDisc;
+    const clothRows = [...clothTableBody.querySelectorAll('tr')];
+    const ship = calcShipMPFlowByShortestSide(clothRows);
+    const grand = subtotal + ship;
+
+    let dep = 0;
+    if(grand>=5000){ dep = Math.floor(grand*0.1); }
+    const cod = grand - dep;
+
+    if (discAmt > 0) {
+      out += `\n\nโปรรีวิว ${flatDiscRate}% = -${discAmt.toLocaleString()} บาท`;
+    }
+
+if (ship > 0) {
+  out += `\nค่าจัดส่ง ${ship.toLocaleString()} บาท`;
+} else {
+  out += `\nค่าจัดส่ง ฟรี`;
+}
+
+const totalLabel = hasKit ? 'MP Flow + อุปกรณ์ติดตั้ง' : 'MP Flow';
+out += `\n\nรวมยอดทั้งหมด (${totalLabel}) ${grand.toLocaleString()} บาท`;
+
+    out += `\n\nโอนชำระเมื่อได้รับสินค้า
+ธนาคารกสิกรไทย
+ชื่อบัญชี: บริษัทมนูธรรมพลาสติก
+เลขที่:1888-5999-39`;
+
+    if (dep > 0) out += `\nมัดจำ 10% (${dep.toLocaleString()} บาท)`;
+    out += `\nCOD ${cod.toLocaleString()}`;
+
+    flatbarResult.value = out.trim();
+    flatbarCopy.classList.remove('hidden');
+    flatbarReset.classList.remove('hidden');
+  };
+
+  flatbarCopy.onclick = ()=> copyText(flatbarResult.value || '');
+  flatbarReset.onclick = ()=>{
+    flatbarForm.reset();
+    clothTableBody.innerHTML='';
+    makeClothRow('custom');
+    flatbarItemsBody.innerHTML='';
+    flatbarResult.value='';
+    flatbarCopy.classList.add('hidden');
+    flatbarReset.classList.add('hidden');
+  };
+
+  // SUMMARY
+  let latestSummaryTexts = {
+    admin: '',
+    customer: '',
+    full: '',
+    price: ''
+  };
+
+  function updateSummaryCard({subtotal, ship, dep, grand}){
+    document.getElementById('cardSubtotal').textContent = formatBaht(subtotal);
+    document.getElementById('cardShip').textContent = formatBaht(ship);
+    document.getElementById('cardDeposit').textContent = formatBaht(dep);
+    document.getElementById('cardGrand').textContent = formatBaht(grand);
+    document.getElementById('summaryResultWrap').style.display = 'block';
+  }
+
+  function updateSummaryAdminAlert(messages){
+    const box = document.getElementById('summaryAdminAlert');
+    if (!messages || !messages.length) {
+      box.classList.remove('show');
+      box.innerHTML = '';
+      return;
+    }
+    box.innerHTML = messages.map(m => `• ${m}`).join('<br>');
+    box.classList.add('show');
+  }
+
+  function buildPriceOnlyText({subtotal, ship, dep, bal, grand}){
+    let out = `ยอดสินค้า ${Math.floor(subtotal).toLocaleString()} บาท\n`;
+    out += `ค่าส่ง ${Math.floor(ship).toLocaleString()} บาท\n`;
+    out += `ยอดรวม ${Math.floor(grand).toLocaleString()} บาท\n`;
+    if(dep > 0) out += `มัดจำ 10% ${Math.floor(dep).toLocaleString()} บาท\n`;
+    out += `COD ${Math.floor(bal).toLocaleString()} บาท`;
+    return out;
+  }
+
+  function buildCustomerText({
+    cust, list, geoText, hydroText, hydroNetTotal, hydroQtyDiscount, hydroDiscRate, hydroShip, hydroQty, hydroSpecialAreaFee,
+    fullItems, discountAmount, netItems, ship, grand, dep, bal, summaryDiscRate
+  }){
+    let out = cust ? `ส่ง\n${cust}\n\n` : '';
+    if(list) out += `${list}\n`;
+    if(geoText) out += `${geoText}\n`;
+    if(hydroText) out += `${hydroText}\n`;
+
+    if(fullItems > 0){
+      if(discountAmount > 0){
+        out += `ยอดเต็ม ${Math.floor(fullItems).toLocaleString()} บาท\n`;
+        out += `ส่วนลด ${summaryDiscRate}% = -${Math.floor(discountAmount).toLocaleString()} บาท\n`;
+        out += `ยอดหลังหักส่วนลด ${Math.floor(netItems).toLocaleString()} บาท\n`;
+      }
+      out += ship ? `ค่าจัดส่ง ${Math.floor(ship).toLocaleString()} บาท\n` : `ส่งฟรี\n`;
+    }
+
+    if(hydroText){
+      if(hydroQtyDiscount > 0){
+        out += `ยอดรวม HydroPod ${fmt(hydroNetTotal + hydroQtyDiscount)} บาท\n`;
+        out += `ส่วนลด ${hydroDiscRate}% (${hydroQty} บ่อ) = -${fmt(hydroQtyDiscount)} บาท\n`;
+        out += `ยอดสุทธิ HydroPod ${fmt(hydroNetTotal)} บาท\n`;
+      }
+      out += hydroShip > 0 ? `ค่าจัดส่ง HydroPod ${fmt(hydroShip)} บาท\n` : `ค่าจัดส่ง HydroPod ฟรี\n`;
+      if(hydroSpecialAreaFee > 0) out += `ค่าเดินทาง +ที่พักช่าง พื้นที่พิเศษ (เกาะ/ดอย/ชายแดน) ${fmt(hydroSpecialAreaFee)} บาท\n`;
+    }
+
+    out += `ยอดรวม ${Math.floor(grand).toLocaleString()} บาท\n`;
+    if(dep > 0) out += `มัดจำ 10% ${Math.floor(dep).toLocaleString()} บาท\n`;
+    out += `COD ${Math.floor(bal).toLocaleString()} บาท\n\n`;
+    out += `🚚 สินค้าจะจัดส่งถึงลูกค้าภายใน 3-5 วันนะคะ`;
+
+    return out.trim();
+  }
+
+ function buildAdminText({
+  cust, list, geoText, hydroText, hydroNetTotal, hydroQtyDiscount, hydroDiscRate, hydroShip, hydroQty, hydroSpecialAreaFee,
+  fullItems, discountAmount, netItems, ship, grand, dep, bal,
+  weightKgSum, page, admin, summaryRoundClothChecked, summaryDiscRate
+}){
+  let out = cust ? `ส่ง\n${cust}\n\n` : '';
+    if(list) out += `${list}\n`;
+    if(geoText) out += `${geoText}\n`;
+    if(hydroText) out += `${hydroText}\n`;
+
+    if(fullItems > 0){
+      if(discountAmount > 0){
+        out += `ยอดเต็ม (ก่อนส่วนลด) ${Math.floor(fullItems).toLocaleString()} บาท\n`;
+        out += `ส่วนลด ${summaryDiscRate}% = -${Math.floor(discountAmount).toLocaleString()} บาท\n`;
+        out += `ยอดหลังหักส่วนลด เหลือ ${Math.floor(netItems).toLocaleString()} บาท\n`;
+      }
+      out += ship ? `ค่าจัดส่ง ${Math.floor(ship).toLocaleString()} บาท\n` : `ส่งฟรี ชำระเงินเมื่อได้รับของค่ะ\n`;
+    }
+
+    if(hydroText){
+      if(hydroQtyDiscount > 0){
+        out += `ยอดรวม HydroPod ${fmt(hydroNetTotal + hydroQtyDiscount)} บาท\n`;
+        out += `ส่วนลด ${hydroDiscRate}% (${hydroQty} บ่อ) = -${fmt(hydroQtyDiscount)} บาท\n`;
+        out += `ยอดสุทธิ HydroPod ${fmt(hydroNetTotal)} บาท\n`;
+      }
+      out += hydroShip > 0 ? `ค่าจัดส่ง HydroPod ${fmt(hydroShip)} บาท\n` : `ค่าจัดส่ง HydroPod ฟรี\n`;
+      if(hydroSpecialAreaFee > 0) out += `ค่าเดินทาง +ที่พักช่าง พื้นที่พิเศษ (เกาะ/ดอย/ชายแดน) ${fmt(hydroSpecialAreaFee)} บาท\n`;
+    }
+
+    out += `📌 สรุปยอดสั่งซื้อทั้งหมด\nยอดรวม ${Math.floor(grand).toLocaleString()} บาท\n`;
+    out += `น้ำหนักรวมประมาณ ${weightKgSum.toFixed(1)} กก.\n`;
+
+    if(summaryRoundClothChecked) out += `(ผ้ากลม +10 บาท/ตร.ม.)\n`;
+
+    if(dep > 0) out += `✅ ชำระมัดจำ 10% (${Math.floor(dep).toLocaleString()} บาท)\n`;
+    out += `COD ${Math.floor(bal).toLocaleString()} บาท\n\n`;
+    out += `🚚 สินค้าจะจัดส่งถึงลูกค้าภายใน 3-5 วันนะคะ`;
+
+    if(page) out += `\n\nเพจ: ${page}`;
+    if(admin) out += `\nแอดมิน: ${admin}`;
+
+    return out.trim();
+  }
+
+  const tbody = document.querySelector('#itemsTable tbody');
+  const summaryRoundCloth = document.getElementById('summaryRoundCloth');
+  const geoTbodySummary = document.querySelector('#geoItemsTableSummary tbody');
+  const addGeoBtnSummary = document.getElementById('addGeoItemSummary');
+
+  function addGeoRowSummary(){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="g">
+          <option value="150">150g (25)</option>
+          <option value="200">200g (30)</option>
+        </select>
+      </td>
+      <td><input class="gw" type="number" step="0.01" min="0.01" placeholder="เช่น 4"></td>
+      <td><input class="gl" type="number" step="0.01" min="0.01" placeholder="เช่น 10"></td>
+      <td><input class="gq" type="number" value="1" min="1"></td>
+      <td><button type="button" class="btn-danger gdel">ลบ</button></td>
+    `;
+    tr.querySelector('.gdel').onclick = ()=> tr.remove();
+    geoTbodySummary.appendChild(tr);
+  }
+
+  if(addGeoBtnSummary){
+    addGeoBtnSummary.onclick = addGeoRowSummary;
+  }
+
+  function collectGeoSummaryItems(){
+    const rows = [...geoTbodySummary.querySelectorAll('tr')];
+    const items = [];
+
+    for(const tr of rows){
+      const grade = tr.querySelector('.g')?.value;
+      const w = parseFloat(tr.querySelector('.gw')?.value || 0);
+      const l = parseFloat(tr.querySelector('.gl')?.value || 0);
+      const q = Math.max(1, parseInt(tr.querySelector('.gq')?.value || 1, 10));
+      if(!(w>0 && l>0 && q>0)) continue;
+
+      const unit = PRICE_MASTER.geo[grade].price;
+      const kgPerSqm = PRICE_MASTER.geo[grade].kgPerSqm;
+      items.push({ grade, w, l, q, unit, kgPerSqm });
+    }
+
+    return items;
+  }
+
+  // HydroPod rows on summary page
+  const hydroTbodySummary = document.querySelector('#hydroItemsTableSummary tbody');
+  const addHydroBtn = document.getElementById('addHydroItemSummary');
+
+  function addHydroRowSummary() {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select class="hm">
+          <option value="ldpe05">LDPE 0.5 (จับจีบ)</option>
+          <option value="hdpe075">HDPE 0.75 (จับจีบ)</option>
+        </select>
+      </td>
+      <td>
+        <select class="hh">
+          <option value="0.8">สูง 0.8 ม.</option>
+          <option value="1.2">สูง 1.2 ม.</option>
+        </select>
+      </td>
+      <td>
+        <select class="hd">
+          <option value="4">4 ม.</option>
+          <option value="5">5 ม.</option>
+          <option value="6">6 ม.</option>
+          <option value="8">8 ม.</option>
+          <option value="10">10 ม.</option>
+          <option value="12">12 ม.</option>
+        </select>
+      </td>
+      <td><input class="hq" type="number" min="1" step="1" value="1"></td>
+      <td><button type="button" class="btn-danger hdel">ลบ</button></td>
+    `;
+    tr.querySelector('.hdel').onclick = () => tr.remove();
+    hydroTbodySummary.appendChild(tr);
+  }
+
+  if (addHydroBtn) {
+    addHydroBtn.onclick = addHydroRowSummary;
+  }
+
+  function collectHydroSummaryItems() {
+    if (!hydroTbodySummary) return [];
+    const rows = [...hydroTbodySummary.querySelectorAll('tr')];
+    const items = [];
+    for (const tr of rows) {
+      const mat = tr.querySelector('.hm')?.value;
+      const h   = tr.querySelector('.hh')?.value;
+      const d   = tr.querySelector('.hd')?.value;
+      const q   = Math.max(1, parseInt(tr.querySelector('.hq')?.value || 1, 10));
+      const group = CIRCULAR[mat];
+      const data  = group?.[h]?.[d];
+      if (!group || !data) continue;
+      items.push({ mat, h, d, q, volume: data.volume, unitPrice: data.price });
+    }
+    return items;
+  }
+
+  const addRow = () => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><select class="t">
+        <option value="0.3L">LDPE 0.3</option>
+        <option value="0.30L">LDPE 0.3 สีขาว</option>
+        <option value="0.3L_ROLL">LDPE 0.3 ยกม้วน + เศษ</option>
+        <option value="0.5L_ROLL">LDPE 0.5 ยกม้วน + เศษ</option>
+        <option value="0.3L_CANAL">คลองไส้ไก่ LDPE 0.3</option>
+        <option value="0.5L">LDPE 0.5</option>
+        <option value="0.5H">HDPE 0.5</option>
+        <option value="0.75H">HDPE 0.75</option>
+        <option value="1.0H">HDPE 1.0</option>
+      </select></td>
+      <td><input class="w" type="number" step="0.01" min="0.01" placeholder="กว้าง"></td>
+      <td><input class="l" type="number" step="0.01" min="0.01" placeholder="ยาว"></td>
+      <td><input class="d" type="number" step="0.01" min="0" placeholder="ลึก (ถ้ามี)"></td>
+      <td><input class="q" type="number" value="1" min="1"></td>
+      <td><button type="button" class="btn-danger del">ลบ</button></td>
+    `;
+    tr.querySelector('.del').onclick = () => tr.remove();
+    tbody.appendChild(tr);
+  };
+
+  addRow();
+  document.getElementById('addItem').onclick = addRow;
+
+  document.getElementById('summaryForm').onsubmit = (e)=>{
+    e.preventDefault();
+
+    const cust = document.getElementById('custInfo').value.trim();
+    const useDiscount3 = document.getElementById('summaryDiscount3').checked;
+    const PRICE = getSummaryPriceMap();
+    const MAT = c => c === '0.30L' ? 'LDPE สีขาว' : c.endsWith('L') ? 'LDPE' : 'HDPE';
+    const THK = c => c.replace(/[LH]$/, '');
+    const geoItems = collectGeoSummaryItems();
+
+    let total=0, areaSum=0, weightKgSum=0, plasticKgSum=0, list='', idx=1;
+    const adminNotes = [];
+
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const code = tr.querySelector('.t').value;
+      const baseCode = code.split('_')[0];
+      const w = parseFloat(tr.querySelector('.w').value||0);
+      const l = parseFloat(tr.querySelector('.l').value||0);
+      const d = parseFloat(tr.querySelector('.d').value||0);
+      const q = parseInt(tr.querySelector('.q').value || 1, 10);
+      const isCanal = code.includes('_CANAL');
+
+      if(w<=0 || l<=0 || q<=0) return;
+
+      if (d > 4) {
+        adminNotes.push(`มีรายการลึก ${d} ม. กรุณาถามย้ำลูกค้าอีกครั้ง`);
+      }
+
+      let aw=w, al=l;
+      if(d>0){
+        const pad=isCanal?1:2;
+        aw=w+d*2+pad;
+        al=l+d*2+pad;
+      }
+
+      let pricePer = PRICE[baseCode];
+
+      if (code === '0.3L_CANAL' || code === '0.3L_ROLL') {
+        pricePer = PRICE_MASTER.canal['0.3'];
+      } 
+
+      if (!code.endsWith('_ROLL') && summaryRoundCloth && summaryRoundCloth.checked) {
+        pricePer += 10;
+      }
+
+      const area = aw*al;
+      const thk = parseFloat(THK(baseCode));
+      const kg = area * thkToKgPerSqm(thk) * q;
+      weightKgSum += kg;
+      plasticKgSum += kg;
+
+      const cost = code.endsWith('_ROLL') ? rollQuote(baseCode, l, q).total : Math.floor(area * pricePer * q);
+      total += cost;
+      areaSum += area*q;
+
+      list +=
+`📍 รายการ ${idx}:
+ผ้าพลาสติก ${MAT(baseCode)} หนา ${THK(baseCode)} มม. (${pricePer} บาท/ตร.ม.)
+ผ้าขนาด ${aw} × ${al} ม. = ${fmt(area)} ตร.ม.
+ราคาผ้า ${fmt(cost)} บาท
+${code.endsWith('_ROLL') ? rollQuote(baseCode, l, q).text : ''}
+${q>1 ? `จำนวน ${q} ผืน\n` : ''}`;
+      idx++;
+    });
+
+    let geoTotal = 0;
+    let geoText = '';
+    let geoArea = 0;
+
+    if(geoItems.length){
+      const rollW = 2;
+      let geoIdx = 1;
+
+      for(const it of geoItems){
+        const areaOne = it.w * it.l;
+        const areaAll = areaOne * it.q;
+        geoArea += areaAll;
+
+        const cost = Math.floor(areaAll * it.unit);
+        geoTotal += cost;
+
+        weightKgSum += areaAll * it.kgPerSqm;
+        const rollL = Math.ceil(areaOne / rollW);
+
+        geoText +=
+`📍 รายการ Geotextile ${geoIdx}:
+Geotextile ${it.grade}g (${it.unit} บาท/ตร.ม.)
+ขนาดที่ต้องการ ${it.w}x${it.l} ม. = ${Math.floor(areaOne).toLocaleString()} ตร.ม.
+จัดส่งเป็นม้วน 2x${rollL} ม.${it.q>1 ? `\nจำนวน ${it.q} ม้วน` : ''}
+ราคา Geo ${Math.floor(cost).toLocaleString()} บาท
+
+`;
+        geoIdx++;
+      }
+    }
+
+    // HydroPod calculation
+    const hydroItems = collectHydroSummaryItems();
+    const hydroDistanceKm = parseFloat(document.getElementById('hydroDistanceSummary')?.value || 0);
+    let hydroTotal = 0;
+    let hydroText = '';
+    let hydroIdx = 1;
+
+    for (const it of hydroItems) {
+      const lineTotal = it.unitPrice * it.q;
+      hydroTotal += lineTotal;
+      const mmText = it.mat === 'ldpe05' ? 'LDPE หนา 0.5 มม.' : 'HDPE หนา 0.75 มม.';
+      hydroText +=
+`📍 รายการ HydroPod ${hydroIdx}:
+บ่อกลม HydroPod ผ้า ${mmText}
+สูง ${it.h} ม. เส้นผ่านศูนย์กลาง ${it.d} ม.
+ความจุประมาณ ${fmt(it.volume)} ลิตร
+ราคา ${fmt(it.unitPrice)} บาท จำนวน ${it.q} บ่อ
+
+`;
+      hydroIdx++;
+    }
+
+    const hydroQty = hydroItems.reduce((s, it) => s + it.q, 0);
+    const hydroDiscRate = hydroItems.length > 0 ? calcCircularDiscount(hydroQty) : 0;
+    const hydroQtyDiscount = hydroDiscRate > 0 ? Math.floor(hydroTotal * hydroDiscRate / 100) : 0;
+    const hydroNetTotal = Math.max(0, hydroTotal - hydroQtyDiscount);
+    const hydroShipResult = hydroItems.length > 0 ? calcCircularShipping(hydroDistanceKm) : { shipping: 0, note: '' };
+    const hydroFreeShipByQty = hydroQty >= 4;
+    const isHydroSpecialArea = document.getElementById('hydroSpecialAreaSummary')?.checked;
+    const hydroShip = (hydroFreeShipByQty || isHydroSpecialArea) ? 0 : hydroShipResult.shipping;
+    const hydroSpecialAreaFee = hydroItems.length > 0 && !hydroFreeShipByQty && isHydroSpecialArea ? 15000 : 0;
+
+    const extras = collectOrderExtras();
+    if (total === 0 && geoTotal === 0 && hydroTotal === 0 && extras.total === 0) {
+      alert('กรุณากรอกอย่างน้อย 1 รายการ (ผ้า, Geotextile หรือ HydroPod)');
+      return;
+    }
+
+    const itemsTotal = total;
+    const geoTotalSafe = geoTotal || 0;
+
+    let discountAmount = 0;
+    let summaryDiscRate = 0;
+
+    if (useDiscount3) {
+      discountAmount = Math.floor((itemsTotal + geoTotalSafe) * 0.03);
+      summaryDiscRate = 3;
+    }
+
+    let subtotalItems = (itemsTotal + geoTotalSafe) - discountAmount;
+    const fullItems = (itemsTotal + geoTotalSafe);
+    const netItems  = fullItems - discountAmount;
+
+    let ship = hydroItems.length > 0 ? 0 : calcShipCombined(plasticKgSum, geoArea);
+    const totalShip = ship + hydroShip + hydroSpecialAreaFee;
+    const grand = Math.floor(netItems + ship + hydroNetTotal + hydroShip + hydroSpecialAreaFee);
+    const dep = grand >= 5000 ? Math.floor(grand * 0.1) : 0;
+    const bal = grand - dep;
+
+    const page = document.getElementById('pageSelect').value;
+    const admin = document.getElementById('adminSelect').value;
+    const summaryRoundClothChecked = !!(summaryRoundCloth && summaryRoundCloth.checked);
+
+    updateSummaryCard({
+      subtotal: netItems + hydroNetTotal,
+      ship: totalShip,
+      dep,
+      grand
+    });
+
+    updateSummaryAdminAlert(adminNotes);
+
+    const customerText = buildCustomerText({
+      cust, list, geoText, hydroText, hydroNetTotal, hydroQtyDiscount, hydroDiscRate, hydroShip, hydroQty, hydroSpecialAreaFee,
+      fullItems, discountAmount, netItems, ship, grand, dep, bal, summaryDiscRate
+    });
+
+    const adminText = buildAdminText({
+      cust, list, geoText, hydroText, hydroNetTotal, hydroQtyDiscount, hydroDiscRate, hydroShip, hydroQty, hydroSpecialAreaFee,
+      fullItems, discountAmount, netItems, ship, grand, dep, bal,
+      weightKgSum, page, admin, summaryRoundClothChecked, summaryDiscRate
+    });
+
+    latestSummaryTexts.customer = customerText;
+    latestSummaryTexts.admin = adminText;
+    latestSummaryTexts.full = adminText;
+    latestSummaryTexts.price = buildPriceOnlyText({
+      subtotal: netItems + hydroNetTotal,
+      ship: totalShip,
+      dep,
+      bal,
+      grand
+    });
+
+    if (hydroItems.length && !(hydroDistanceKm > 0) && !(document.getElementById('summaryQueue').checked && !isHydroSpecialArea)) { alert('กรุณากรอกระยะทาง HydroPod'); return; }
+    const travel = hydroItems.length ? installationTravel(hydroDistanceKm, hydroQty, isHydroSpecialArea, document.getElementById('summaryQueue').checked) : {total:0, text:''};
+    const finalGrand = netItems + hydroNetTotal + ship + travel.total + extras.total;
+    const onsite = document.getElementById('onsiteEnabled').checked;
+    const finalDep = onsite || hydroItems.length ? Math.floor(finalGrand * .2) : finalGrand >= 5000 ? Math.floor(finalGrand * .1) : 0;
+    const payment = paymentText(finalGrand, finalDep, onsite, hydroItems.length > 0);
+    const totals = `ยอดสินค้า ${fmt(netItems + hydroNetTotal + extras.goods)} บาท\n${extras.text}\n${travel.text}${ship ? `ค่าจัดส่งสินค้า ${fmt(ship)} บาท\n` : ''}\n📌 ยอดรวมสุทธิ ${fmt(finalGrand)} บาท\n\n${payment}`;
+    const discounts = `${discountAmount ? `ส่วนลดสินค้า ${summaryDiscRate}% = -${fmt(discountAmount)} บาท\n` : ''}${hydroQtyDiscount ? `ส่วนลด ${hydroDiscRate}% (${hydroQty} บ่อ) = -${fmt(hydroQtyDiscount)} บาท\nราคาบ่อหลังหักส่วนลด ${fmt(hydroNetTotal)} บาท\n` : ''}`;
+    const combined = `ส่ง\n${cust}\n📍 รายการสั่งซื้อ\n${list}${geoText}${hydroText}\n${discounts}${totals}\n\n${hydroItems.length || onsite ? 'จะมีทีมติดตั้งโทรไปนัดหมายอีกครั้งนะคะ' : 'สินค้าจะจัดส่งถึงลูกค้าภายใน 3-5 วันนะคะ'}`;
+    latestSummaryTexts.customer = combined;
+    latestSummaryTexts.admin = combined + (page ? `\nเพจ: ${page}` : '') + (admin ? `\nแอดมิน: ${admin}` : '');
+    latestSummaryTexts.full = latestSummaryTexts.admin;
+    latestSummaryTexts.price = totals;
+    updateSummaryCard({subtotal:netItems + hydroNetTotal + extras.total, ship:ship + travel.total, dep:finalDep, grand:finalGrand});
+    document.getElementById('summaryResult').value = latestSummaryTexts.admin;
+  };
+
+  document.getElementById('summaryCopyFull').onclick = async () => {
+    await copyText(latestSummaryTexts.full || document.getElementById('summaryResult').value || '');
+  };
+
+  document.getElementById('summaryCopyPrice').onclick = async () => {
+    await copyText(latestSummaryTexts.price || '');
+  };
+
+  document.getElementById('summaryCopyCustomer').onclick = async () => {
+    document.getElementById('summaryResult').value = latestSummaryTexts.customer || '';
+    await copyText(latestSummaryTexts.customer || '');
+  };
+
+  document.getElementById('summaryCopyAdmin').onclick = async () => {
+    document.getElementById('summaryResult').value = latestSummaryTexts.admin || '';
+    await copyText(latestSummaryTexts.admin || '');
+  };
+</script>
+<script src="order-options.js"></script>
+</body>
+</html>
