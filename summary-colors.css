@@ -54,7 +54,7 @@
   --product-color: #475569;
   --product-tint: #f1f5f9;
 }
-#summaryContainer #orderAccessories .accessory-row:has(option[value="gasket"]:checked) {
+#summaryContainer #orderAccessories .accessory-row:has(option[value^="gasket"]:checked) {
   --product-color: #6b21a8;
   --product-tint: #faf5ff;
 }

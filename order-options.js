@@ -91,15 +91,24 @@ document.getElementById('pageSelect').previousElementSibling.insertAdjacentHTML(
     <label>ค่าน้ำมัน (บาท)<input id="onsiteFuel" type="number" min="0" step="0.01" value="0"></label>
   </div>`);
 
+const ACCESSORY_PRODUCTS = {
+  ...Object.fromEntries(Object.entries(COVER_PRICES).map(([size, price]) => [size, {label:`ฝาบ่อพลาสติกขาว ${size} ม.`, price, unit:'ชุด'}])),
+  clip: {label:'กิ๊บ', price:15, unit:'ชิ้น'},
+  gasket2: {label:'ปะเก็น 2 นิ้ว', price:50, unit:'คู่'},
+  gasket3: {label:'ปะเก็น 3 นิ้ว', price:100, unit:'คู่'}
+};
+
 document.getElementById('addAccessory').onclick = () => {
   const row = document.createElement('div');
   row.className = 'row accessory-row';
-  row.innerHTML = `<label>สินค้า<select class="accessoryType">${Object.keys(COVER_PRICES).map(d => `<option value="${d}">ฝาบ่อพลาสติกขาว ${d} ม.</option>`).join('')}<option value="clip">กิ๊บ</option><option value="gasket">ปะเก็น</option></select></label><label>ราคา / ชุดหรือชิ้น<input class="accessoryPrice" type="number" min="0.01" step="0.01" required value="2500" readonly></label><label>จำนวน<input class="accessoryQty" type="number" min="1" step="1" value="1" required></label><button type="button" class="btn-danger">ลบ</button>`;
+  row.innerHTML = `<label>สินค้า<select class="accessoryType">${Object.entries(ACCESSORY_PRODUCTS).map(([id, product]) => `<option value="${id}">${product.label}</option>`).join('')}</select></label><label><span class="accessoryPriceLabel">ราคา / ชุด</span><input class="accessoryPrice" type="number" min="0.01" step="0.01" required value="2500" readonly></label><label><span class="accessoryQtyLabel">จำนวน (ชุด)</span><input class="accessoryQty" type="number" min="1" step="1" value="1" required></label><button type="button" class="btn-danger">ลบ</button>`;
   row.querySelector('button').onclick = () => row.remove();
   row.querySelector('select').onchange = event => {
     const price = row.querySelector('.accessoryPrice');
-    price.readOnly = !!COVER_PRICES[event.target.value];
-    price.value = COVER_PRICES[event.target.value] || '';
+    const product = ACCESSORY_PRODUCTS[event.target.value];
+    price.value = product.price;
+    row.querySelector('.accessoryPriceLabel').textContent = `ราคา / ${product.unit}`;
+    row.querySelector('.accessoryQtyLabel').textContent = `จำนวน (${product.unit})`;
   };
   document.getElementById('orderAccessories').appendChild(row);
 };
@@ -124,11 +133,12 @@ function collectOrderExtras() {
   let goods = 0, text = '';
   document.querySelectorAll('.accessory-row').forEach(row => {
     const select = row.querySelector('select');
-    const price = Number(row.querySelector('.accessoryPrice').value);
+    const product = ACCESSORY_PRODUCTS[select.value];
+    const price = product.price;
     const qty = Number(row.querySelector('.accessoryQty').value);
     const cost = Math.floor(price * qty);
     goods += cost;
-    text += `${select.selectedOptions[0].textContent} ราคา ${fmt(price)} บาท จำนวน ${qty} รวม ${fmt(cost)} บาท\n`;
+    text += `${product.label} ราคา ${fmt(price)} บาท/${product.unit} จำนวน ${qty} ${product.unit} รวม ${fmt(cost)} บาท\n`;
   });
   let labor = 0, fuel = 0;
   if (document.getElementById('onsiteEnabled').checked) {
