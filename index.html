@@ -2383,7 +2383,7 @@ Geotextile ${it.grade}g (${it.unit} บาท/ตร.ม.)
     const hydroSpecialAreaFee = hydroItems.length > 0 && !hydroFreeShipByQty && isHydroSpecialArea ? 15000 : 0;
 
     const extras = collectOrderExtras();
-    if (total === 0 && geoTotal === 0 && hydroTotal === 0 && extras.total === 0) {
+    if (total === 0 && geoTotal === 0 && hydroTotal === 0 && extras.total === 0 && !extras.hasItems) {
       alert('กรุณากรอกอย่างน้อย 1 รายการ (ผ้า, Geotextile หรือ HydroPod)');
       return;
     }
