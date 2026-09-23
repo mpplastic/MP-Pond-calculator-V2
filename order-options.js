@@ -145,7 +145,8 @@ document.getElementById('onsiteMode').onchange = syncOnsite;
 syncOnsite();
 
 function collectOrderExtras() {
-  let goods = 0, text = '';
+  const drain = collectDrainKit('summary');
+  let goods = drain.total, text = drain.text;
   document.querySelectorAll('.accessory-row').forEach(row => {
     const select = row.querySelector('select');
     const product = ACCESSORY_PRODUCTS[select.value];
@@ -165,7 +166,35 @@ function collectOrderExtras() {
     fuel = Math.floor(Number(document.getElementById('onsiteFuel').value));
     text += `ค่าปู / เชื่อม${byArea ? ` ${area} ตร.ม. × ${rate} บาท` : ''} = ${fmt(labor)} บาท\nค่าน้ำมัน ${fmt(fuel)} บาท\n`;
   }
-  return {goods, total:goods + labor + fuel, text, hasItems:document.querySelectorAll('.accessory-row').length > 0};
+  return {goods, total:goods + labor + fuel, text, hasItems:drain.total > 0 || document.querySelectorAll('.accessory-row').length > 0};
+}
+
+const DRAIN_KIT_PRICE = 600;
+for (const [prefix, anchorId, formId] of [
+  ['circular', 'addCircularCover', 'circularForm'],
+  ['summary', 'addHydroItemSummary', 'summaryForm']
+]) {
+  document.getElementById(anchorId).insertAdjacentHTML('afterend', `
+    <label><input type="checkbox" id="${prefix}DrainKit"> สะดือท่อ / ชุดท่อระบายน้ำบ่อกลม ชุดละ ${DRAIN_KIT_PRICE} บาท</label>
+    <label id="${prefix}DrainQtyLabel" hidden>จำนวนชุดท่อระบายน้ำ
+      <input type="number" id="${prefix}DrainQty" min="1" step="1" value="1" disabled required>
+    </label>`);
+  const toggle = document.getElementById(`${prefix}DrainKit`);
+  const qty = document.getElementById(`${prefix}DrainQty`);
+  const sync = () => {
+    qty.disabled = !toggle.checked;
+    document.getElementById(`${prefix}DrainQtyLabel`).hidden = !toggle.checked;
+  };
+  toggle.addEventListener('change', sync);
+  document.getElementById(formId).addEventListener('reset', () => queueMicrotask(sync));
+}
+
+function collectDrainKit(prefix) {
+  if (!document.getElementById(`${prefix}DrainKit`).checked) return {total:0, text:''};
+  const qty = Number(document.getElementById(`${prefix}DrainQty`).value);
+  if (!Number.isInteger(qty) || qty < 1) throw new Error('กรุณาระบุจำนวนชุดท่อระบายน้ำเป็นจำนวนเต็มตั้งแต่ 1 ชุด');
+  const total = DRAIN_KIT_PRICE * qty;
+  return {total, text:`สะดือท่อ / ชุดท่อระบายน้ำบ่อกลม ราคา ${fmt(DRAIN_KIT_PRICE)} บาท/ชุด จำนวน ${qty} ชุด รวม ${fmt(total)} บาท\n`};
 }
 
 document.getElementById('itemsTable').addEventListener('change', event => {
