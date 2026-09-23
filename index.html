@@ -1544,6 +1544,7 @@ circularForm.onsubmit = function(e){
   }
 
   const covers = collectCircularCovers();
+  const drain = collectDrainKit('circular');
   const discRate = calcCircularDiscount(totalQty);
   const discount = discRate > 0 ? Math.floor(fullTotal * discRate / 100) : 0;
   const afterDiscount = Math.max(0, fullTotal - discount);
@@ -1567,6 +1568,7 @@ circularForm.onsubmit = function(e){
 
   out += listText;
   if (covers.text) out += `\n${covers.text}`;
+  if (drain.text) out += `\n${drain.text}`;
   out += `\nราคาบ่อรวม ${fmt(fullTotal)} บาท\n`;
 
   if(discount > 0){
@@ -1583,7 +1585,7 @@ circularForm.onsubmit = function(e){
 
 
   {
-    const grandTotal = afterDiscount3 + covers.total + shipping + specialAreaFee;
+    const grandTotal = afterDiscount3 + covers.total + drain.total + shipping + specialAreaFee;
     const deposit = Math.floor(grandTotal * 0.20);
     const cod = grandTotal - deposit;
 
