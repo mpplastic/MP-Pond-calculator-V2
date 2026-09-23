@@ -95,7 +95,8 @@ const ACCESSORY_PRODUCTS = {
   ...Object.fromEntries(Object.entries(COVER_PRICES).map(([size, price]) => [size, {label:`ฝาบ่อพลาสติกขาว ${size} ม.`, price, unit:'ชุด'}])),
   clip: {label:'กิ๊บ', price:15, unit:'ชิ้น'},
   gasket2: {label:'ปะเก็น 2 นิ้ว', price:50, unit:'คู่'},
-  gasket3: {label:'ปะเก็น 3 นิ้ว', price:100, unit:'คู่'}
+  gasket3: {label:'ปะเก็น 3 นิ้ว', price:100, unit:'คู่'},
+  tape: {label:'เทปปะ', price:100, unit:'เมตร'}
 };
 
 document.getElementById('addAccessory').onclick = () => {
@@ -107,8 +108,22 @@ document.getElementById('addAccessory').onclick = () => {
     const price = row.querySelector('.accessoryPrice');
     const product = ACCESSORY_PRODUCTS[event.target.value];
     price.value = product.price;
+    const isTape = event.target.value === 'tape';
+    const claim = row.querySelector('.tapeClaim');
+    claim.checked = false;
+    claim.disabled = !isTape;
+    row.querySelector('.tapeClaimLabel').hidden = !isTape;
+    price.min = isTape ? '0' : '0.01';
+    const qty = row.querySelector('.accessoryQty');
+    qty.min = isTape ? '0.01' : '1';
+    qty.step = isTape ? '0.01' : '1';
+    if (!isTape && !Number.isInteger(Number(qty.value))) qty.value = Math.max(1, Math.ceil(Number(qty.value)));
     row.querySelector('.accessoryPriceLabel').textContent = `ราคา / ${product.unit}`;
     row.querySelector('.accessoryQtyLabel').textContent = `จำนวน (${product.unit})`;
+  };
+  row.querySelector('button').insertAdjacentHTML('beforebegin', '<label class="tapeClaimLabel" hidden><input type="checkbox" class="tapeClaim" disabled> เคลม ฟรี</label>');
+  row.querySelector('.tapeClaim').onchange = event => {
+    row.querySelector('.accessoryPrice').value = event.target.checked ? 0 : ACCESSORY_PRODUCTS.tape.price;
   };
   document.getElementById('orderAccessories').appendChild(row);
 };
@@ -136,9 +151,10 @@ function collectOrderExtras() {
     const product = ACCESSORY_PRODUCTS[select.value];
     const price = product.price;
     const qty = Number(row.querySelector('.accessoryQty').value);
-    const cost = Math.floor(price * qty);
+    const isClaim = select.value === 'tape' && row.querySelector('.tapeClaim').checked;
+    const cost = isClaim ? 0 : Math.round(price * qty);
     goods += cost;
-    text += `${product.label} ราคา ${fmt(price)} บาท/${product.unit} จำนวน ${qty} ${product.unit} รวม ${fmt(cost)} บาท\n`;
+    text += isClaim ? `${product.label} จำนวน ${qty} ${product.unit} เคลม ฟรี รวม 0 บาท\n` : `${product.label} ราคา ${fmt(price)} บาท/${product.unit} จำนวน ${qty} ${product.unit} รวม ${fmt(cost)} บาท\n`;
   });
   let labor = 0, fuel = 0;
   if (document.getElementById('onsiteEnabled').checked) {
@@ -149,7 +165,7 @@ function collectOrderExtras() {
     fuel = Math.floor(Number(document.getElementById('onsiteFuel').value));
     text += `ค่าปู / เชื่อม${byArea ? ` ${area} ตร.ม. × ${rate} บาท` : ''} = ${fmt(labor)} บาท\nค่าน้ำมัน ${fmt(fuel)} บาท\n`;
   }
-  return {goods, total:goods + labor + fuel, text};
+  return {goods, total:goods + labor + fuel, text, hasItems:document.querySelectorAll('.accessory-row').length > 0};
 }
 
 document.getElementById('itemsTable').addEventListener('change', event => {
